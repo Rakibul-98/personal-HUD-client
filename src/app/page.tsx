@@ -21,16 +21,16 @@ export default function Home() {
 
       <div className="relative z-10 text-white">
         <Header />
-        <main className="grid grid-cols-2">
-          <div className="bg-gray-400/10 backdrop-blur-sm">
+        <main className="grid grid-cols-4">
+          {/* <div className="bg-gray-400/10 backdrop-blur-sm">
             <LeftBar />
-          </div>
-          {/* <div className="col-span-2 bg-red-300/10 backdrop-blur-sm">
-            <Feed />
           </div> */}
-          <div className="bg-blue-100/10 backdrop-blur-sm">
-            <RightBar />
+          <div className="col-span-4">
+            <Feed />
           </div>
+          {/* <div className="bg-blue-100/10 backdrop-blur-sm">
+            <RightBar />
+          </div> */}
         </main>
       </div>
     </div>
