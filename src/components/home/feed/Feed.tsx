@@ -5,7 +5,7 @@ import FeedCard from "./feedCard/FeedCard";
 export default function Feed() {
   return (
     <div>
-      <div className="h-[calc(100vh-30px)] overflow-scroll">
+      <div className="h-[calc(100vh-100px)] overflow-scroll">
         <FeedMenu />
         <main className="space-y-3">
           {/* dynamically display fetched feed items */}

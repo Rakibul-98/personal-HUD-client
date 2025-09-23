@@ -1,25 +1,48 @@
 "use client";
 
-import { Moon } from "lucide-react";
-import { Switch } from "../../ui/switch";
+import { Moon, Send, Sun } from "lucide-react";
+import Image from "next/image";
+import logo from "../../../assets/HUD_logo.png";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function Header() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   return (
     <div>
-      <div className="flex justify-between ">
-        <div className="flex gap-2">
-          <p>logo</p>
-          <p>name</p>
+      <div className="flex justify-between gap-2 items-center h-16">
+        <Link href="/" className="">
+          <Image src={logo} alt="Logo" width={50} height={50} />
+        </Link>
+        <div className="bg-gray-100/20 rounded-sm flex items-center">
+          <input
+            className="focus:outline-0 ps-3 px-1"
+            type="text"
+            placeholder="Search topic..."
+          />
+          <button
+            className="bg-gray-100/30 py-1 px-1.5 rounded-e-sm cursor-pointer hover:bg-gray-100/20"
+            type="button"
+          >
+            <Send className="p-[2px] rotate-[10deg]" />
+          </button>
         </div>
-        <div>
-          <input className="border" type="text" placeholder="Search" />
-          <button type="button">Search</button>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Switch id="dark-mode" />
-          <Moon className="h-4 w-4" />
-          <label htmlFor="dark-mode">Dark Mode</label>
-        </div>
+        <button
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          className="flex items-center rounded-full bg-gray-100/20 p-1 relative"
+          aria-label={
+            isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+          }
+        >
+          <div
+            className={`absolute top-1 bottom-1 rounded-full bg-blue-400/90 transition-all duration-300 ${
+              isDarkMode ? "left-1 right-1/2" : "left-1/2 right-1"
+            }`}
+          />
+
+          <Sun className="h-7 w-7 relative z-10 p-1 transition-colors duration-300" />
+          <Moon className="h-7 w-7 relative z-10 p-1 transition-colors duration-300" />
+        </button>
       </div>
     </div>
   );
