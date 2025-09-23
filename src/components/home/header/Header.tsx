@@ -12,7 +12,7 @@ export default function Header() {
           <p>name</p>
         </div>
         <div>
-          <input type="text" placeholder="Search" />
+          <input className="border" type="text" placeholder="Search" />
           <button type="button">Search</button>
         </div>
         <div>
