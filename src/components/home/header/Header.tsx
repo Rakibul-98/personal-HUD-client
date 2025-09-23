@@ -1,7 +1,7 @@
 "use client";
 
 import { Moon } from "lucide-react";
-import { Toggle } from "../../ui/toggle";
+import { Switch } from "../../ui/switch";
 
 export default function Header() {
   return (
@@ -15,11 +15,10 @@ export default function Header() {
           <input className="border" type="text" placeholder="Search" />
           <button type="button">Search</button>
         </div>
-        <div>
-          <Toggle aria-label="Toggle dark mode">
-            <Moon className="h-4 w-4 mr-2" />
-            Dark Mode
-          </Toggle>
+        <div className="flex items-center space-x-2">
+          <Switch id="dark-mode" />
+          <Moon className="h-4 w-4" />
+          <label htmlFor="dark-mode">Dark Mode</label>
         </div>
       </div>
     </div>
