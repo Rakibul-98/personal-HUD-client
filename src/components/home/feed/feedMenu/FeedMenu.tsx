@@ -1,18 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "../../../ui/button";
 import { Play, Pause, Zap } from "lucide-react";
 
-export default function FeedMenu() {
-  const [isAutoScroll, setIsAutoScroll] = useState(true);
+interface FeedMenuProps {
+  isAutoScroll: boolean;
+  onAutoScrollToggle: () => void;
+  onFetchNow: () => void;
+}
 
+export default function FeedMenu({
+  isAutoScroll,
+  onAutoScrollToggle,
+  onFetchNow,
+}: FeedMenuProps) {
   return (
     <div className="mb-5">
       <div className="flex justify-between gap-3 items-center">
         <div>
           <button
-            onClick={() => setIsAutoScroll((prev) => !prev)}
+            onClick={onAutoScrollToggle}
             className="bg-gray-100/10 hover:bg-gray-100/20 py-1 px-2 cursor-pointer"
           >
             {isAutoScroll ? (
@@ -29,7 +37,10 @@ export default function FeedMenu() {
           </button>
         </div>
         <div>
-          <Button className="bg-gray-100/10 hover:bg-gray-100/20 rounded-none cursor-pointer">
+          <Button
+            onClick={onFetchNow}
+            className="bg-gray-100/10 hover:bg-gray-100/20 rounded-none cursor-pointer"
+          >
             <Zap size={20} /> Fetch Now
           </Button>
         </div>
