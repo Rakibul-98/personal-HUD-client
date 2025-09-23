@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { Button } from "../../ui/button";
-import { Bookmark, Newspaper, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useState } from "react";
+import Navigation from "./Navigation";
 
 export default function LeftBar() {
   const [focusTags, setFocusTags] = useState(["coding", "AI/ML", "design"]);
@@ -38,28 +38,12 @@ export default function LeftBar() {
         <p className="text-lg font-normal text-gray-100 border-l-2 border-blue-400 pl-3">
           Welcome, {user}
         </p>
-
-        <nav className="flex flex-col space-y-2 my-4">
-          <Link
-            href="/feed"
-            className="flex gap-2 bg-white/5 hover:bg-white/10 px-4 py-2 transition-all duration-300 backdrop-blur"
-          >
-            <Newspaper />
-            Feed
-          </Link>
-          <Link
-            href="/bookmark"
-            className="flex gap-2 bg-white/5 hover:bg-white/10 px-4 py-2 transition-all duration-300 backdrop-blur"
-          >
-            <Bookmark />
-            Bookmarks
-          </Link>
-        </nav>
+        <Navigation />
 
         <div className="my-4">
           <label className="block mb-2">What&apos;s your focus today?</label>
           <input
-            className="bg-gray-100/20 focus:outline-0 p-2 w-full text-white placeholder-gray-400"
+            className="bg-gray-100/10 border border-gray-100/50 focus:outline-0 p-2 w-full text-white placeholder-gray-400"
             type="text"
             placeholder="eg: coding, AI/ML"
             value={inputValue}
