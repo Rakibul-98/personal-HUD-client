@@ -1,3 +1,9 @@
+import Header from "../components/home/header/Header";
+
 export default function Home() {
-  return <div>Welcome to the HUD project</div>;
+  return (
+    <div>
+      <Header />
+    </div>
+  );
 }
