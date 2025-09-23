@@ -7,7 +7,7 @@ export default function Feed() {
     <div className="p-5">
       <div className="">
         <FeedMenu />
-        <main className="space-y-3 h-[calc(100vh-200px)] overflow-scroll">
+        <main className="space-y-3 h-[calc(100vh-200px)] overflow-y-scroll">
           {/* dynamically display fetched feed items */}
           {[...Array(10)].map((_, index) => (
             <FeedCard key={index} />
