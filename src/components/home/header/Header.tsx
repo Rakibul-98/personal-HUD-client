@@ -29,7 +29,7 @@ export default function Header() {
         </div>
         <button
           onClick={() => setIsDarkMode(!isDarkMode)}
-          className="flex items-center rounded-full bg-gray-100/20 p-1 relative"
+          className="flex items-center rounded-full bg-gray-100/20 p-1 relative cursor-pointer"
           aria-label={
             isDarkMode ? "Switch to light mode" : "Switch to dark mode"
           }
