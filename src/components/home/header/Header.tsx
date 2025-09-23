@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Send, Sun } from "lucide-react";
+import { Moon, Search, Sun } from "lucide-react";
 import Image from "next/image";
 import logo from "../../../assets/HUD_logo.png";
 import Link from "next/link";
@@ -24,7 +24,7 @@ export default function Header() {
             className="bg-gray-100/30 py-1 px-1.5 rounded-e-sm cursor-pointer hover:bg-gray-100/20"
             type="button"
           >
-            <Send className="p-[2px] rotate-[10deg]" />
+            <Search className="p-[2px]" />
           </button>
         </div>
         <button

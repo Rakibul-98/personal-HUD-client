@@ -75,7 +75,7 @@ export default function Feed() {
 
   if (totalCards <= cardsPerView) {
     return (
-      <div className="p-5">
+      <div className="px-3">
         <div className="">
           <FeedMenu
             isAutoScroll={isAutoScrollEnabled}
@@ -93,7 +93,7 @@ export default function Feed() {
   }
 
   return (
-    <div className="p-5">
+    <div className="px-3">
       <div className="">
         <FeedMenu
           isAutoScroll={isAutoScrollEnabled}

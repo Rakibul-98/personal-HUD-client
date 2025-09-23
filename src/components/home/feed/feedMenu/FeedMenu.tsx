@@ -16,8 +16,8 @@ export default function FeedMenu({
   onFetchNow,
 }: FeedMenuProps) {
   return (
-    <div className="mb-5">
-      <div className="flex justify-between gap-3 items-center">
+    <div className="mb-3">
+      <div className="flex justify-between gap-3 items-center bg-white/5 backdrop-blur p-3">
         <div>
           <button
             onClick={onAutoScrollToggle}
