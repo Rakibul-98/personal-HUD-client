@@ -1,18 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ThemeToggle from "../components/home/header/ThemeToggle";
 import { ThemeProvider } from "../components/ThemeProvider/ThemeProvider";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import Providers from "./providers";
 
 export const metadata: Metadata = {
   title: "Intelligent Personal Feed",
@@ -26,15 +16,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider>
-          {children}
-          <div className="absolute top-6 right-5">
-            <ThemeToggle />
-          </div>
-        </ThemeProvider>
+      <body>
+        <Providers>
+          <ThemeProvider>
+            {children}
+            <div className="absolute top-6 right-5">
+              <ThemeToggle />
+            </div>
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

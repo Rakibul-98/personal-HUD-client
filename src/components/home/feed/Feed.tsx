@@ -3,13 +3,29 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import FeedMenu from "./feedMenu/FeedMenu";
 import FeedCard from "./feedCard/FeedCard";
+import { useAppDispatch, useAppSelector } from "../../../Redux/store";
+import { fetchFeeds } from "../../../Redux/slices/feedSlice";
+import FeedCardSkeleton from "./feedCard/FeedCardSkeleton";
 
-export default function Feed() {
+interface FeedProps {
+  userFocus?: string[];
+  userId?: string;
+}
+
+export default function Feed({ userFocus, userId }: FeedProps) {
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+
+  const dispatch = useAppDispatch();
+  const { feeds, loading, error } = useAppSelector((state) => state.feed);
+
   const cardsPerView = 3;
-  const totalCards = 10;
+  const totalCards = feeds.length;
+
+  useEffect(() => {
+    dispatch(fetchFeeds({ userFocus, userId }));
+  }, [dispatch, userFocus, userId]);
 
   useEffect(() => {
     if (feedContainerRef.current && totalCards > cardsPerView) {
@@ -68,10 +84,32 @@ export default function Feed() {
     setIsAutoScrollEnabled((prev) => !prev);
   };
 
-  const handleFetchNow = () => {
-    console.log("Fetch Now clicked");
-    setCurrentIndex(0);
-  };
+  const handleFetchNow = () => dispatch(fetchFeeds());
+
+  if (loading) {
+    return (
+      <div className="px-3">
+        <FeedMenu
+          isAutoScroll={isAutoScrollEnabled}
+          onAutoScrollToggle={handleAutoScrollToggle}
+          onFetchNow={handleFetchNow}
+        />
+        <main className="space-y-3 h-[calc(100vh-200px)]">
+          {[...Array(3)].map((_, index) => (
+            <FeedCardSkeleton key={index} />
+          ))}
+        </main>
+      </div>
+    );
+  }
+  if (error)
+    return (
+      <div className="min-h-full flex items-center justify-center p-4 ">
+        <div className="rounded p-6 max-w-md w-full bg-white/10">
+          <p className="text-red-500 font-medium text-center">{error}</p>
+        </div>
+      </div>
+    );
 
   if (totalCards <= cardsPerView) {
     return (
@@ -83,8 +121,8 @@ export default function Feed() {
             onFetchNow={handleFetchNow}
           />
           <main className="space-y-3 h-[calc(100vh-200px)]">
-            {[...Array(totalCards)].map((_, index) => (
-              <FeedCard key={index} />
+            {feeds.map((feed) => (
+              <FeedCard key={feed._id} feed={feed} />
             ))}
           </main>
         </div>
@@ -115,8 +153,8 @@ export default function Feed() {
             }
           `}</style>
 
-          {[...Array(totalCards)].map((_, index) => (
-            <FeedCard key={index} />
+          {feeds.map((feed) => (
+            <FeedCard key={feed._id} feed={feed} />
           ))}
         </main>
       </div>
