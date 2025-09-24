@@ -18,7 +18,10 @@ export default function FeedMenu({
   return (
     <div className="mb-3">
       <div className="flex justify-between gap-3 items-center bg-white/5 backdrop-blur p-3">
-        <div>
+        <h3 className="text-xl font-semibold capitalize">
+          All Your need is here
+        </h3>
+        <div className="flex gap-3">
           <button
             onClick={onAutoScrollToggle}
             className="bg-gray-100/10 hover:bg-gray-100/20 py-1 px-2 cursor-pointer"
@@ -35,8 +38,6 @@ export default function FeedMenu({
               </div>
             )}
           </button>
-        </div>
-        <div>
           <Button
             onClick={onFetchNow}
             className="bg-gray-100/10 hover:bg-gray-100/20 rounded-none cursor-pointer"

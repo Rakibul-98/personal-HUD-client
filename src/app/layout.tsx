@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import ThemeToggle from "../components/home/header/ThemeToggle";
+import { ThemeProvider } from "../components/ThemeProvider/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,22 +29,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-screen w-full bg-[#020617] relative">
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              background: "#020617",
-              backgroundImage: `
-                linear-gradient(to right, rgba(59,130,246,0.12) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(99,102,241,0.12) 1px, transparent 1px),
-                radial-gradient(circle at 50% 60%, rgba(59,130,246,0.25) 0%, rgba(99,102,241,0.15) 40%, rgba(139,92,246,0.05) 70%)
-              `,
-              backgroundSize: "40px 40px, 40px 40px, 100% 100%",
-            }}
-          />
-
-          <div className="relative z-10 text-white">{children}</div>
-        </div>
+        <ThemeProvider>
+          {children}
+          <div className="absolute top-6 right-5">
+            <ThemeToggle />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
