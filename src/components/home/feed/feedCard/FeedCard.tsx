@@ -2,12 +2,33 @@ import React from "react";
 import Link from "next/link";
 import { Bookmark, ExternalLink, Hash, TrendingUp } from "lucide-react";
 import { Feed as FeedType } from "../../../../Redux/slices/feedSlice";
+import { useAppDispatch, useAppSelector } from "../../../../Redux/hooks";
+import {
+  addBookmark,
+  removeBookmark,
+} from "../../../../Redux/slices/bookmarkSlice";
 
 interface FeedCardProps {
   feed: FeedType;
 }
 
 export default function FeedCard({ feed }: FeedCardProps) {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
+  const bookmarks = useAppSelector((state) => state.bookmark.bookmarks);
+
+  const isBookmarked = bookmarks.some((b) => b.feedItem._id === feed._id);
+
+  const handleBookmark = () => {
+    if (!user) return alert("Login to bookmark");
+    if (isBookmarked) {
+      const bookmark = bookmarks.find((b) => b.feedItem?._id === feed._id);
+      if (bookmark) dispatch(removeBookmark(bookmark._id));
+    } else {
+      dispatch(addBookmark({ user: user.id, feedItem: feed._id }));
+    }
+  };
+
   return (
     <div className="bg-white/5 backdrop-blur rounded-sm p-6 hover:bg-white/10 transition-all duration-300">
       <div className="mb-4">
@@ -36,12 +57,14 @@ export default function FeedCard({ feed }: FeedCardProps) {
 
           <div className="flex items-center space-x-1">
             <TrendingUp className="h-3 w-3" />
-            <span>{feed.popularityScore.toLocaleString()}</span>
+            <span>{feed.popularityScore}</span>
           </div>
         </div>
 
-        <button className="cursor-pointer">
-          <Bookmark className="h-6 w-6" />
+        <button onClick={handleBookmark} className="cursor-pointer">
+          <Bookmark
+            className={`h-6 w-6 ${isBookmarked ? "text-yellow-400" : ""}`}
+          />
         </button>
       </div>
 

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 import api from "../../lib/axios";
 
 interface AuthState {
@@ -8,7 +7,7 @@ interface AuthState {
   error: string | null;
   userId: string | null;
   token: string | null;
-  user: { _id: string; name: string; email: string } | null;
+  user: { id: string; name: string; email: string } | null;
 }
 
 const initialState: AuthState = {
