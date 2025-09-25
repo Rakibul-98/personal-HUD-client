@@ -35,9 +35,39 @@ export const fetchFeeds = createAsyncThunk(
   }: {
     userFocus: { topics: string[] };
     userId?: string;
+    feedSources?: {
+      reddit?: boolean;
+      hackerNews?: boolean;
+      devTo?: boolean;
+    } | null;
+    sortingPreference?: "latest" | "rank" | "popularity";
   }) => {
     const { data } = await api.post("/feeds/list", { userFocus, userId });
-    return data;
+    return data as Feed[];
+  }
+);
+
+export const fetchUserFocus = createAsyncThunk(
+  "feed/fetchUserFocus",
+  async (userId: string) => {
+    const { data } = await api.get(`/focus/${userId}`);
+    return data.topics || [];
+  }
+);
+
+export const addFocusKeyword = createAsyncThunk(
+  "feed/addFocusKeyword",
+  async ({ userId, keyword }: { userId: string; keyword: string }) => {
+    const { data } = await api.post("/focus/add", { userId, keyword });
+    return data.topics || [];
+  }
+);
+
+export const removeFocusKeyword = createAsyncThunk(
+  "feed/removeFocusKeyword",
+  async ({ userId, keyword }: { userId: string; keyword: string }) => {
+    const { data } = await api.post("/focus/remove", { userId, keyword });
+    return data.topics || [];
   }
 );
 
@@ -61,6 +91,15 @@ const feedSlice = createSlice({
       .addCase(fetchFeeds.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to fetch feeds";
+      })
+      .addCase(fetchUserFocus.fulfilled, (state, action) => {
+        state.userFocus = action.payload;
+      })
+      .addCase(addFocusKeyword.fulfilled, (state, action) => {
+        state.userFocus = action.payload;
+      })
+      .addCase(removeFocusKeyword.fulfilled, (state, action) => {
+        state.userFocus = action.payload;
       });
   },
 });

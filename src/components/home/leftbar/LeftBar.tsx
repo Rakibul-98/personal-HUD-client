@@ -2,10 +2,16 @@
 
 import { Button } from "../../ui/button";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navigation from "./Navigation";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
-import { setUserFocus, fetchFeeds } from "../../../Redux/slices/feedSlice";
+import {
+  setUserFocus,
+  fetchFeeds,
+  fetchUserFocus,
+  addFocusKeyword,
+  removeFocusKeyword,
+} from "../../../Redux/slices/feedSlice";
 import { logout } from "../../../Redux/slices/authSlice";
 import { useRouter } from "next/navigation";
 
@@ -14,8 +20,16 @@ export default function LeftBar() {
   const router = useRouter();
   const { user } = useAppSelector((state) => state.auth);
   const { userFocus } = useAppSelector((state) => state.feed);
+  const { settings } = useAppSelector((state) => state.settings);
 
   const [inputValue, setInputValue] = useState("");
+
+  useEffect(() => {
+    if (user?.id) {
+      // load persisted user focus from backend
+      dispatch(fetchUserFocus(user.id));
+    }
+  }, [user, dispatch]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && inputValue.trim() !== "") {
@@ -24,21 +38,47 @@ export default function LeftBar() {
     }
   };
 
-  const addTag = (tag: string) => {
+  const addTag = async (tag: string) => {
     if (tag && !userFocus.includes(tag)) {
-      const updated = [...userFocus, tag];
-      dispatch(setUserFocus(updated));
-      dispatch(
-        fetchFeeds({ userFocus: { topics: updated }, userId: user?.id })
-      );
-      setInputValue("");
+      try {
+        const result = await dispatch(
+          addFocusKeyword({ userId: user!.id, keyword: tag })
+        ).unwrap();
+        const updated = result;
+        dispatch(setUserFocus(updated));
+        await dispatch(
+          fetchFeeds({
+            userFocus: { topics: updated },
+            userId: user!.id,
+            feedSources: settings?.feedSources ?? null,
+            sortingPreference: settings?.sortingPreference,
+          })
+        );
+        setInputValue("");
+      } catch (err) {
+        console.error("Failed to add focus:", err);
+      }
     }
   };
 
-  const removeTag = (tagToRemove: string) => {
-    const updated = userFocus.filter((tag) => tag !== tagToRemove);
-    dispatch(setUserFocus(updated));
-    dispatch(fetchFeeds({ userFocus: { topics: updated }, userId: user?.id }));
+  const removeTag = async (tagToRemove: string) => {
+    try {
+      const result = await dispatch(
+        removeFocusKeyword({ userId: user!.id, keyword: tagToRemove })
+      ).unwrap();
+      const updated = result;
+      dispatch(setUserFocus(updated));
+      await dispatch(
+        fetchFeeds({
+          userFocus: { topics: updated },
+          userId: user!.id,
+          feedSources: settings?.feedSources ?? null,
+          sortingPreference: settings?.sortingPreference,
+        })
+      );
+    } catch (err) {
+      console.error("Failed to remove focus:", err);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

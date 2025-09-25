@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
@@ -20,13 +21,27 @@ export default function Feed({ userId }: FeedProps) {
   const { feeds, loading, error, userFocus } = useAppSelector(
     (state) => state.feed
   );
+  const { settings } = useAppSelector((state) => state.settings);
 
   const cardsPerView = 3;
   const totalCards = feeds.length;
 
   useEffect(() => {
-    dispatch(fetchFeeds({ userFocus: { topics: userFocus }, userId }));
-  }, [dispatch, userFocus, userId]);
+    dispatch(
+      fetchFeeds({
+        userFocus: { topics: userFocus },
+        userId,
+        feedSources: settings?.feedSources ?? null,
+        sortingPreference: settings?.sortingPreference,
+      })
+    );
+  }, [
+    dispatch,
+    userFocus,
+    userId,
+    settings?.feedSources,
+    settings?.sortingPreference,
+  ]);
 
   useEffect(() => {
     if (feedContainerRef.current && totalCards > cardsPerView) {
@@ -41,8 +56,18 @@ export default function Feed({ userId }: FeedProps) {
     }
   }, [currentIndex, totalCards]);
 
+  const getIntervalMs = () => {
+    const raw = settings?.scrollSpeed ?? 2;
+    const speed = Math.min(Math.max(Math.round(raw), 1), 3);
+    if (speed === 1) return 4000;
+    if (speed === 2) return 2000;
+    return 1000;
+  };
+
   useEffect(() => {
     if (totalCards <= cardsPerView || !isAutoScrollEnabled) return;
+
+    const intervalMs = getIntervalMs();
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => {
@@ -52,10 +77,10 @@ export default function Feed({ userId }: FeedProps) {
         }
         return nextIndex;
       });
-    }, 2000);
+    }, intervalMs);
 
     return () => clearInterval(interval);
-  }, [totalCards, isAutoScrollEnabled]);
+  }, [totalCards, isAutoScrollEnabled, settings?.scrollSpeed]);
 
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {

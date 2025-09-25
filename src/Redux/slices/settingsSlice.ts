@@ -50,7 +50,7 @@ export const updateSettings = createAsyncThunk(
 export const manualFetch = createAsyncThunk(
   "settings/manualFetch",
   async (userId: string) => {
-    const { data } = await api.post("/settings/fetchNow", { userId });
+    const { data } = await api.post("/settings/fetch-now", { userId });
     return data;
   }
 );

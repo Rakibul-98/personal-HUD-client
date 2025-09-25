@@ -22,6 +22,7 @@ export default function RightBar() {
   const dispatch = useAppDispatch();
   const { settings } = useAppSelector((state) => state.settings);
   const { user } = useAppSelector((state) => state.auth);
+  const { userFocus } = useAppSelector((state) => state.feed);
 
   useEffect(() => {
     if (user?.id) dispatch(fetchSettings(user.id));
@@ -42,7 +43,9 @@ export default function RightBar() {
     "popularity",
   ];
 
-  const handleSourceChange = (source: keyof UserSettings["feedSources"]) => {
+  const handleSourceChange = async (
+    source: keyof UserSettings["feedSources"]
+  ) => {
     if (!settings || !user?.id) return;
 
     const updatedSources: UserSettings["feedSources"] = {
@@ -50,30 +53,59 @@ export default function RightBar() {
       [source]: !settings.feedSources[source],
     };
 
-    dispatch(
-      updateSettings({
-        userId: user.id,
-        updates: { feedSources: updatedSources },
-      })
-    );
+    try {
+      await dispatch(
+        updateSettings({
+          userId: user.id,
+          updates: { feedSources: updatedSources },
+        })
+      ).unwrap();
 
-    dispatch(fetchFeeds({ userFocus: { topics: [] }, userId: user.id }));
+      await dispatch(
+        fetchFeeds({
+          userFocus: { topics: userFocus },
+          userId: user.id,
+          feedSources: updatedSources,
+          sortingPreference: settings.sortingPreference,
+        })
+      );
+    } catch (err) {
+      console.error("Error updating source:", err);
+    }
   };
 
-  const handleScrollSpeedChange = (value: number) => {
+  const handleScrollSpeedChange = async (value: number) => {
     if (!settings || !user?.id) return;
-    dispatch(
-      updateSettings({ userId: user.id, updates: { scrollSpeed: value } })
-    );
+    try {
+      await dispatch(
+        updateSettings({ userId: user.id, updates: { scrollSpeed: value } })
+      ).unwrap();
+    } catch (err) {
+      console.error("Failed to save scroll speed:", err);
+    }
   };
 
-  const handleSortChange = (sort: UserSettings["sortingPreference"]) => {
+  const handleSortChange = async (sort: UserSettings["sortingPreference"]) => {
     if (!settings || !user?.id) return;
-    dispatch(
-      updateSettings({ userId: user.id, updates: { sortingPreference: sort } })
-    );
+    try {
+      await dispatch(
+        updateSettings({
+          userId: user.id,
+          updates: { sortingPreference: sort },
+        })
+      ).unwrap();
 
-    dispatch(fetchFeeds({ userFocus: { topics: [] }, userId: user.id }));
+      await dispatch(
+        fetchFeeds({
+          userFocus: { topics: userFocus },
+          userId: user.id,
+          feedSources: settings.feedSources,
+          sortingPreference: sort,
+        })
+      );
+    } catch (err) {
+      console.error("Failed to change sort:", err);
+    }
   };
 
   return (
