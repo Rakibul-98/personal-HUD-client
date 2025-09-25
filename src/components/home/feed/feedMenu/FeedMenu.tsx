@@ -19,7 +19,7 @@ export default function FeedMenu({
   return (
     <div className="mb-3">
       <div
-        className={`flex flex-col md:flex-row justify-between gap-3 md:items-center ${
+        className={`flex flex-col md:flex-row justify-between gap-3 items-center ${
           isDarkMode ? "bg-white/5" : "bg-gray-500/20"
         } backdrop-blur p-3`}
       >

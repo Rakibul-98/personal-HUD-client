@@ -113,7 +113,7 @@ export default function RightBar() {
   return (
     <div
       className={`h-full ${
-        isDarkMode ? "bg-gray-400/5" : "bg-gray-500/10"
+        isDarkMode ? "bg-black/50 md:bg-gray-400/5" : "bg-gray-500/10"
       } backdrop-blur-sm`}
     >
       <div className="p-5 space-y-6">
