@@ -8,23 +8,24 @@ import FeedCardSkeleton from "./feedCard/FeedCardSkeleton";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
 
 interface FeedProps {
-  userFocus?: string[];
   userId?: string;
 }
 
-export default function Feed({ userFocus, userId }: FeedProps) {
+export default function Feed({ userId }: FeedProps) {
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
 
   const dispatch = useAppDispatch();
-  const { feeds, loading, error } = useAppSelector((state) => state.feed);
+  const { feeds, loading, error, userFocus } = useAppSelector(
+    (state) => state.feed
+  );
 
   const cardsPerView = 3;
   const totalCards = feeds.length;
 
   useEffect(() => {
-    dispatch(fetchFeeds({ userFocus, userId }));
+    dispatch(fetchFeeds({ userFocus: { topics: userFocus }, userId }));
   }, [dispatch, userFocus, userId]);
 
   useEffect(() => {
@@ -84,7 +85,8 @@ export default function Feed({ userFocus, userId }: FeedProps) {
     setIsAutoScrollEnabled((prev) => !prev);
   };
 
-  const handleFetchNow = () => dispatch(fetchFeeds());
+  const handleFetchNow = () =>
+    dispatch(fetchFeeds({ userFocus: { topics: userFocus }, userId }));
 
   if (loading) {
     return (
@@ -114,50 +116,46 @@ export default function Feed({ userFocus, userId }: FeedProps) {
   if (totalCards <= cardsPerView) {
     return (
       <div className="px-3">
-        <div className="">
-          <FeedMenu
-            isAutoScroll={isAutoScrollEnabled}
-            onAutoScrollToggle={handleAutoScrollToggle}
-            onFetchNow={handleFetchNow}
-          />
-          <main className="space-y-3 h-[calc(100vh-200px)]">
-            {feeds.map((feed) => (
-              <FeedCard key={feed._id} feed={feed} />
-            ))}
-          </main>
-        </div>
+        <FeedMenu
+          isAutoScroll={isAutoScrollEnabled}
+          onAutoScrollToggle={handleAutoScrollToggle}
+          onFetchNow={handleFetchNow}
+        />
+        <main className="space-y-3 h-[calc(100vh-200px)]">
+          {feeds.map((feed) => (
+            <FeedCard key={feed._id} feed={feed} />
+          ))}
+        </main>
       </div>
     );
   }
 
   return (
     <div className="px-3">
-      <div className="">
-        <FeedMenu
-          isAutoScroll={isAutoScrollEnabled}
-          onAutoScrollToggle={handleAutoScrollToggle}
-          onFetchNow={handleFetchNow}
-        />
-        <main
-          ref={feedContainerRef}
-          className="space-y-3 h-[calc(100vh-200px)] overflow-y-auto"
-          onWheel={handleWheel}
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-        >
-          <style jsx>{`
-            main::-webkit-scrollbar {
-              display: none;
-            }
-          `}</style>
+      <FeedMenu
+        isAutoScroll={isAutoScrollEnabled}
+        onAutoScrollToggle={handleAutoScrollToggle}
+        onFetchNow={handleFetchNow}
+      />
+      <main
+        ref={feedContainerRef}
+        className="space-y-3 h-[calc(100vh-200px)] overflow-y-auto"
+        onWheel={handleWheel}
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        <style jsx>{`
+          main::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
 
-          {feeds.map((feed) => (
-            <FeedCard key={feed._id} feed={feed} />
-          ))}
-        </main>
-      </div>
+        {feeds.map((feed) => (
+          <FeedCard key={feed._id} feed={feed} />
+        ))}
+      </main>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../lib/axios";
 
 export interface Feed {
@@ -17,18 +17,26 @@ interface FeedState {
   feeds: Feed[];
   loading: boolean;
   error: string | null;
+  userFocus: string[];
 }
 
 const initialState: FeedState = {
   feeds: [],
   loading: false,
   error: null,
+  userFocus: [],
 };
 
 export const fetchFeeds = createAsyncThunk(
   "feed/fetchFeeds",
-  async (payload?: { userFocus?: string[]; userId?: string }) => {
-    const { data } = await api.post("/feeds/list", payload || {});
+  async ({
+    userFocus,
+    userId,
+  }: {
+    userFocus: { topics: string[] };
+    userId?: string;
+  }) => {
+    const { data } = await api.post("/feeds/list", { userFocus, userId });
     return data;
   }
 );
@@ -36,7 +44,11 @@ export const fetchFeeds = createAsyncThunk(
 const feedSlice = createSlice({
   name: "feed",
   initialState,
-  reducers: {},
+  reducers: {
+    setUserFocus: (state, action: PayloadAction<string[]>) => {
+      state.userFocus = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchFeeds.pending, (state) => {
@@ -53,4 +65,5 @@ const feedSlice = createSlice({
   },
 });
 
+export const { setUserFocus } = feedSlice.actions;
 export default feedSlice.reducer;

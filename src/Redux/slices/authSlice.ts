@@ -1,17 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import api from "../../lib/axios";
 
 interface AuthState {
   loading: boolean;
   error: string | null;
   userId: string | null;
+  token: string | null;
+  user: { _id: string; name: string; email: string } | null;
 }
 
 const initialState: AuthState = {
   loading: false,
   error: null,
   userId: null,
+  token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
+  user:
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("user") || "null")
+      : null,
 };
 
 export const registerUser = createAsyncThunk(
@@ -21,10 +29,7 @@ export const registerUser = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/users/register",
-        payload
-      );
+      const response = await api.post("/users/register", payload);
       return response.data.userId;
     } catch (err: any) {
       return rejectWithValue(
@@ -38,11 +43,9 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (payload: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/users/login",
-        payload,
-        { headers: { "Content-Type": "application/json" } }
-      );
+      const response = await api.post("/users/login", payload, {
+        headers: { "Content-Type": "application/json" },
+      });
       return response.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.error || "Server error");
@@ -56,6 +59,13 @@ const authSlice = createSlice({
   reducers: {
     clearError(state) {
       state.error = null;
+    },
+    logout(state) {
+      state.userId = null;
+      state.token = null;
+      state.error = null;
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
   },
   extraReducers: (builder) => {
@@ -79,7 +89,10 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
         localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -88,5 +101,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, logout } = authSlice.actions;
 export default authSlice.reducer;

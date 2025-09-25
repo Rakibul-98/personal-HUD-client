@@ -4,11 +4,18 @@ import { Button } from "../../ui/button";
 import { X } from "lucide-react";
 import { useState } from "react";
 import Navigation from "./Navigation";
+import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
+import { setUserFocus, fetchFeeds } from "../../../Redux/slices/feedSlice";
+import { logout } from "../../../Redux/slices/authSlice";
+import { useRouter } from "next/navigation";
 
 export default function LeftBar() {
-  const [focusTags, setFocusTags] = useState(["coding", "AI/ML", "design"]);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { user } = useAppSelector((state) => state.auth);
+  const { userFocus } = useAppSelector((state) => state.feed);
+
   const [inputValue, setInputValue] = useState("");
-  const user = "Rakibul Hasan";
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && inputValue.trim() !== "") {
@@ -18,25 +25,36 @@ export default function LeftBar() {
   };
 
   const addTag = (tag: string) => {
-    if (tag && !focusTags.includes(tag)) {
-      setFocusTags([...focusTags, tag]);
+    if (tag && !userFocus.includes(tag)) {
+      const updated = [...userFocus, tag];
+      dispatch(setUserFocus(updated));
+      dispatch(
+        fetchFeeds({ userFocus: { topics: updated }, userId: user?._id })
+      );
       setInputValue("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setFocusTags(focusTags.filter((tag) => tag !== tagToRemove));
+    const updated = userFocus.filter((tag) => tag !== tagToRemove);
+    dispatch(setUserFocus(updated));
+    dispatch(fetchFeeds({ userFocus: { topics: updated }, userId: user?._id }));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
+  const handleLogout = () => {
+    router.push("/");
+    dispatch(logout());
+  };
+
   return (
     <div className="h-full flex flex-col">
       <div className="p-5 flex-1">
         <p className="text-lg font-normal text-gray-100 border-l-2 border-blue-400 pl-3">
-          Welcome, {user}
+          Welcome, {user?.name || "Guest"}
         </p>
         <Navigation />
 
@@ -51,10 +69,10 @@ export default function LeftBar() {
             onKeyPress={handleKeyPress}
           />
 
-          {focusTags.length > 0 && (
+          {userFocus.length > 0 && (
             <div className="mt-3">
               <div className="flex flex-wrap gap-2">
-                {focusTags.map((tag, index) => (
+                {userFocus.map((tag, index) => (
                   <span
                     key={index}
                     className="px-2 py-1 bg-gray-500 rounded-sm text-xs flex items-center gap-1"
@@ -78,6 +96,7 @@ export default function LeftBar() {
         <Button
           className="w-full rounded-none cursor-pointer"
           variant="destructive"
+          onClick={handleLogout}
         >
           Logout
         </Button>
