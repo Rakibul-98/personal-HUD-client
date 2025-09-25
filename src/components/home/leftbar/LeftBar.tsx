@@ -29,7 +29,7 @@ export default function LeftBar() {
       const updated = [...userFocus, tag];
       dispatch(setUserFocus(updated));
       dispatch(
-        fetchFeeds({ userFocus: { topics: updated }, userId: user?._id })
+        fetchFeeds({ userFocus: { topics: updated }, userId: user?.id })
       );
       setInputValue("");
     }
@@ -38,7 +38,7 @@ export default function LeftBar() {
   const removeTag = (tagToRemove: string) => {
     const updated = userFocus.filter((tag) => tag !== tagToRemove);
     dispatch(setUserFocus(updated));
-    dispatch(fetchFeeds({ userFocus: { topics: updated }, userId: user?._id }));
+    dispatch(fetchFeeds({ userFocus: { topics: updated }, userId: user?.id }));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,7 +54,10 @@ export default function LeftBar() {
     <div className="h-full flex flex-col">
       <div className="p-5 flex-1">
         <p className="text-lg font-normal text-gray-100 border-l-2 border-blue-400 pl-3">
-          Welcome, {user?.name || "Guest"}
+          Welcome,{" "}
+          <span className="text-blue-400 font-medium">
+            {user?.name || "Guest"}
+          </span>
         </p>
         <Navigation />
 

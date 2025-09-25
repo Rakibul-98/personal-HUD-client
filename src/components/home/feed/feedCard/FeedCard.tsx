@@ -38,10 +38,10 @@ export default function FeedCard({ feed }: FeedCardProps) {
           rel="noopener noreferrer"
           className="group hover:underline flex items-start justify-between"
         >
-          <h3 className="text-lg font-medium mb-2 pr-5 leading-relaxed">
+          <h3 className="flex-1 text-lg font-medium mb-2 pr-5 leading-relaxed">
             {feed.title}
           </h3>
-          <ExternalLink className="h-5 w-5 text-gray-400 group-hover:text-blue-500 mt-1" />
+          <ExternalLink className=" h-5 w-5 text-gray-400 group-hover:text-blue-500 mt-1" />
         </Link>
       </div>
 
