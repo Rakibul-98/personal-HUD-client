@@ -26,7 +26,9 @@ export default function Layout({ children }: AppLayoutProps) {
     setShowRight(!showRight);
     setShowLeft(false);
   };
+
   const isFeedPage = pathname === "/feed";
+  const isBookmarkPage = pathname === "/bookmark";
 
   return (
     <ProtectedRoute>
@@ -36,6 +38,7 @@ export default function Layout({ children }: AppLayoutProps) {
           ${isFeedPage ? "lg:grid-cols-6" : "lg:grid-cols-5"}
           relative`}
       >
+        {/* LEFT SIDEBAR */}
         <div
           className={`
             ${showLeft ? "absolute z-50 w-64 h-full" : "hidden"} 
@@ -46,9 +49,11 @@ export default function Layout({ children }: AppLayoutProps) {
           <LeftBar />
         </div>
 
+        {/* MAIN CONTENT */}
         <div className="col-span-1 md:col-span-3 lg:col-span-4">{children}</div>
 
-        {pathname === "/feed" && (
+        {/* RIGHT SIDEBAR */}
+        {isFeedPage && !isBookmarkPage && (
           <div
             className={`
               ${showRight ? "absolute right-0 z-50 w-64 h-full" : "hidden"} 
@@ -62,10 +67,9 @@ export default function Layout({ children }: AppLayoutProps) {
 
         <button
           onClick={toggleLeft}
-          className={`
-    absolute transition-all z-50 cursor-pointer
-    ${showLeft ? "left-52 top-4" : "left-4 top-1"}
-  `}
+          className={`absolute transition-all z-50 cursor-pointer md:hidden
+              ${showLeft ? "left-52 top-4" : "left-4 top-1"}
+            `}
         >
           <span className="relative flex items-center justify-center w-10 h-10 rounded-full">
             {isDarkMode && (
@@ -80,15 +84,14 @@ export default function Layout({ children }: AppLayoutProps) {
             </span>
           </span>
         </button>
-
-        {pathname === "/feed" && (
+        {isFeedPage && !isBookmarkPage && (
           <button
             onClick={toggleRight}
-            className={`
-    absolute transition-all z-50 cursor-pointer
-    right-4
-    ${showRight ? "top-4" : "md:top-13 top-1"}
-  `}
+            className={`absolute transition-all z-50 cursor-pointer
+              right-4
+              ${showRight ? "top-4" : "top-1"}
+              md:block lg:hidden
+            `}
           >
             <span className="relative flex items-center justify-center w-10 h-10 rounded-full">
               {isDarkMode && (
