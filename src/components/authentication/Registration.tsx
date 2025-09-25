@@ -31,7 +31,7 @@ export default function Registration() {
 
   return (
     <div className="relative w-[420px] rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-6 shadow-2xl border border-gray-700">
-      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-40 blur-xl" />
+      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-40 blur-xl animate-pulse" />
       <div className="relative z-10 space-y-6">
         <h2 className="text-xl font-semibold text-white text-center">
           Create Account

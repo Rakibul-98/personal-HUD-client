@@ -42,7 +42,7 @@ export default function HomePage() {
 
           <div className="flex-1 mt-12 md:mt-0 flex justify-center">
             <div className="relative w-[420px] rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-6 shadow-2xl border border-gray-700">
-              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-40 blur-xl" />
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-40 blur-xl animate-pulse" />
 
               <div className="relative z-10 space-y-4">
                 <h2 className="text-xl font-semibold text-white">
