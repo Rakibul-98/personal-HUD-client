@@ -49,7 +49,7 @@ export default function Bookmark() {
       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
     >
       <div className="px-3">
-        <main className="space-y-3 h-[calc(100vh-200px)]">
+        <main className="space-y-3 h-[calc(100vh-4rem)] overflow-y-auto">
           {bookmarks.map((bookmark) =>
             bookmark.feedItem && bookmark.feedItem.content ? (
               <FeedCard key={bookmark._id} feed={bookmark.feedItem} />

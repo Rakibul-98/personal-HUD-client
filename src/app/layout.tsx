@@ -20,7 +20,7 @@ export default function RootLayout({
         <Providers>
           <ThemeProvider>
             {children}
-            <div className="absolute top-6 right-5">
+            <div className="absolute top-3 right-6">
               <ThemeToggle />
             </div>
           </ThemeProvider>

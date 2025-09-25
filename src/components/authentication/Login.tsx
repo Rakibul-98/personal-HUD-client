@@ -55,7 +55,7 @@ export default function Login() {
             className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-          <p className="text-sm">
+          <p className="text-sm text-white">
             Don&apos;t have an account?{" "}
             <Link className="underline hover:no-underline" href="/registration">
               Register Now

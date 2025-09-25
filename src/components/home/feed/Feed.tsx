@@ -156,7 +156,7 @@ export default function Feed({ userId }: FeedProps) {
   }
 
   return (
-    <div className="px-3">
+    <div className="px-3 h-full">
       <FeedMenu
         isAutoScroll={isAutoScrollEnabled}
         onAutoScrollToggle={handleAutoScrollToggle}
@@ -164,7 +164,7 @@ export default function Feed({ userId }: FeedProps) {
       />
       <main
         ref={feedContainerRef}
-        className="space-y-3 h-[calc(100vh-200px)] overflow-y-auto"
+        className="space-y-3 h-[calc(100vh-9rem)] overflow-y-auto"
         onWheel={handleWheel}
         style={{
           scrollbarWidth: "none",

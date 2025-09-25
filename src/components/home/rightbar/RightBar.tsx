@@ -17,12 +17,14 @@ import {
   UserSettings,
 } from "../../../Redux/slices/settingsSlice";
 import { fetchFeeds } from "../../../Redux/slices/feedSlice";
+import { useTheme } from "../../ThemeProvider/ThemeProvider";
 
 export default function RightBar() {
   const dispatch = useAppDispatch();
   const { settings } = useAppSelector((state) => state.settings);
   const { user } = useAppSelector((state) => state.auth);
   const { userFocus } = useAppSelector((state) => state.feed);
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     if (user?.id) dispatch(fetchSettings(user.id));
@@ -109,26 +111,37 @@ export default function RightBar() {
   };
 
   return (
-    <div className="h-full">
+    <div
+      className={`h-full ${
+        isDarkMode ? "bg-gray-400/5" : "bg-gray-500/10"
+      } backdrop-blur-sm`}
+    >
       <div className="p-5 space-y-6">
         <div>
-          <p className="text-lg font-normal text-gray-100 border-l-2 border-blue-400 pl-3 mb-3">
+          <p className="text-lg font-normal border-l-2 border-blue-400 pl-3 mb-3">
             Feed Sources
           </p>
           <div className="space-y-2">
             {availableSources.map((source) => (
               <div
                 key={source}
-                className="flex items-center space-x-3 bg-white/5 p-3 backdrop-blur"
+                className={`flex items-center space-x-3 ${
+                  isDarkMode ? "bg-white/5" : "bg-gray-100/50 "
+                } p-3 backdrop-blur`}
               >
                 <Checkbox
                   id={source}
                   checked={settings.feedSources[source]}
                   onCheckedChange={() => handleSourceChange(source)}
+                  className={`${
+                    isDarkMode
+                      ? "data-[state=checked]:bg-blue-400"
+                      : "border-black"
+                  }`}
                 />
                 <label
                   htmlFor={source}
-                  className="text-gray-200 text-sm font-light cursor-pointer"
+                  className=" text-sm font-light cursor-pointer"
                 >
                   {source}
                 </label>
@@ -138,18 +151,22 @@ export default function RightBar() {
         </div>
 
         <div>
-          <p className="text-lg font-normal text-gray-100 border-l-2 border-blue-400 pl-3 mb-3">
+          <p className="text-lg font-normal  border-l-2 border-blue-400 pl-3 mb-3">
             Scroll Speed
           </p>
-          <div className="bg-white/5 p-4 backdrop-blur">
+          <div
+            className={` ${
+              isDarkMode ? "bg-white/5" : "bg-gray-100/50 "
+            } p-4 backdrop-blur`}
+          >
             <Slider
               min={1}
-              max={5}
+              max={3}
               step={1}
               value={[settings.scrollSpeed]}
               onValueChange={(val) => handleScrollSpeedChange(val[0])}
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-2">
+            <div className="flex justify-between text-xs mt-2">
               <span>Slow</span>
               <span>Medium</span>
               <span>Fast</span>
@@ -158,25 +175,29 @@ export default function RightBar() {
         </div>
 
         <div>
-          <p className="text-lg font-normal text-gray-100 border-l-2 border-blue-400 pl-3 mb-3">
+          <p className="text-lg font-normal  border-l-2 border-blue-400 pl-3 mb-3">
             Sort By
           </p>
-          <div className="bg-white/5 p-3 backdrop-blur">
+          <div className={` ${isDarkMode ? "bg-white/5" : "bg-gray-100/50 "}`}>
             <Select
               value={settings.sortingPreference}
               onValueChange={(val) =>
                 handleSortChange(val as UserSettings["sortingPreference"])
               }
             >
-              <SelectTrigger className="bg-white/10 border-white/20 text-gray-200 w-full outline-none rounded-none">
+              <SelectTrigger className=" w-full outline-none rounded-none border-0">
                 <SelectValue placeholder="Select sort option" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-white/20">
+              <SelectContent
+                className={`rounded-none border-0 ${
+                  isDarkMode && "bg-white/5 text-white"
+                }`}
+              >
                 {sortOptions.map((option) => (
                   <SelectItem
                     key={option}
                     value={option}
-                    className="text-gray-200 hover:bg-white/10"
+                    className=" capitalize rounded-none"
                   >
                     {option}
                   </SelectItem>

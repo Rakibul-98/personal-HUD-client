@@ -70,7 +70,7 @@ export default function Registration() {
             className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-          <p className="text-sm text-center">
+          <p className="text-sm text-white text-center">
             Already registered?{" "}
             <Link className="underline hover:no-underline" href="/login">
               Login here

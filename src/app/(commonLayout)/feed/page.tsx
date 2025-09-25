@@ -7,7 +7,7 @@ export default function FeedPage() {
       <div className="col-span-2">
         <Feed />
       </div>
-      <div className="bg-blue-100/5 backdrop-blur-sm">
+      <div className="">
         <RightBar />
       </div>
     </div>

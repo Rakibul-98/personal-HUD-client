@@ -33,12 +33,10 @@ export default function HomePage() {
             <div className="mt-8">
               <Link
                 href="/feed"
-                className="bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 shadow-lg shadow-blue-500/40 hover:opacity-90 transition"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 shadow-lg shadow-blue-500/40 hover:opacity-90 transition text-white"
               >
                 Get Started
               </Link>
-              <Link href="/registration">Registration</Link>
-              <Link href="/login">Login</Link>
             </div>
           </div>
 

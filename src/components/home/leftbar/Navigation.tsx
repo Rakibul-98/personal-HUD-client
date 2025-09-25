@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Newspaper, Bookmark } from "lucide-react";
+import { useTheme } from "../../ThemeProvider/ThemeProvider";
 
 export default function Navigation() {
   const pathname = usePathname();
+  const { isDarkMode } = useTheme();
 
   const navItems = [
     {
@@ -30,8 +32,12 @@ export default function Navigation() {
             href={item.href}
             className={`flex gap-2 px-4 py-2 transition-all duration-300 backdrop-blur items-center ${
               isActive
-                ? "bg-blue-400/80 cursor-default"
-                : "bg-white/5 hover:bg-white/10"
+                ? isDarkMode
+                  ? "bg-blue-400/80 cursor-default"
+                  : "bg-blue-400/80 cursor-default text-white"
+                : isDarkMode
+                ? "bg-white/5 hover:bg-white/10"
+                : "bg-gray-100/50 hover:bg-gray-200"
             }`}
           >
             <Icon size={20} />
