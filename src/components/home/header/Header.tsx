@@ -15,7 +15,7 @@ export default function Header() {
         <div className="w-full flex justify-center">
           <div className="bg-gray-100/20 rounded-sm flex items-center w-[300px] md:w-[450px] me-16">
             <input
-              className="focus:outline-0 ps-3 px-1 w-full"
+              className="focus:outline-0 ps-3 px-1 w-full placeholder-gray-400"
               type="text"
               placeholder="Search topic..."
             />

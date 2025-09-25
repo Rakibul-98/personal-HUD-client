@@ -3,9 +3,9 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import FeedMenu from "./feedMenu/FeedMenu";
 import FeedCard from "./feedCard/FeedCard";
-import { useAppDispatch, useAppSelector } from "../../../Redux/store";
 import { fetchFeeds } from "../../../Redux/slices/feedSlice";
 import FeedCardSkeleton from "./feedCard/FeedCardSkeleton";
+import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
 
 interface FeedProps {
   userFocus?: string[];

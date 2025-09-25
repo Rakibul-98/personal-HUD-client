@@ -28,7 +28,7 @@ const initialState: FeedState = {
 export const fetchFeeds = createAsyncThunk(
   "feed/fetchFeeds",
   async (payload?: { userFocus?: string[]; userId?: string }) => {
-    const { data } = await api.post("/feeds/lists", payload || {});
+    const { data } = await api.post("/feeds/list", payload || {});
     return data;
   }
 );

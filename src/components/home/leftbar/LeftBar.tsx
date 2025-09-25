@@ -43,9 +43,9 @@ export default function LeftBar() {
         <div className="my-4">
           <label className="block mb-2">What&apos;s your focus today?</label>
           <input
-            className="bg-gray-100/10 border border-gray-100/50 focus:outline-0 p-2 w-full text-white placeholder-gray-400"
+            className="bg-gray-100/10 border border-gray-100/50 focus:outline-0 p-2 w-full placeholder-gray-500"
             type="text"
-            placeholder="eg: coding, AI/ML"
+            placeholder="eg: coding, AI/ML ..."
             value={inputValue}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}

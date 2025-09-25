@@ -37,6 +37,8 @@ export default function HomePage() {
               >
                 Get Started
               </Link>
+              <Link href="/registration">Registration</Link>
+              <Link href="/login">Login</Link>
             </div>
           </div>
 
