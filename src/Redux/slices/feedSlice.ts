@@ -47,6 +47,28 @@ export const fetchFeeds = createAsyncThunk(
   }
 );
 
+export const refreshAndFetchFeeds = createAsyncThunk(
+  "feed/refreshAndFetchFeeds",
+  async ({
+    userFocus,
+    userId,
+    feedSources,
+  }: {
+    userFocus: { topics: string[] };
+    userId?: string;
+    feedSources?: {
+      reddit?: boolean;
+      hackerNews?: boolean;
+      devTo?: boolean;
+    } | null;
+  }) => {
+    await api.post("/feeds/refresh", { userFocus, userId, feedSources });
+
+    const { data } = await api.post("/feeds/list", { userFocus, userId });
+    return data as Feed[];
+  }
+);
+
 export const fetchUserFocus = createAsyncThunk(
   "feed/fetchUserFocus",
   async (userId: string) => {
@@ -91,6 +113,18 @@ const feedSlice = createSlice({
       .addCase(fetchFeeds.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to fetch feeds";
+      })
+      .addCase(refreshAndFetchFeeds.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(refreshAndFetchFeeds.fulfilled, (state, action) => {
+        state.loading = false;
+        state.feeds = action.payload;
+      })
+      .addCase(refreshAndFetchFeeds.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.error.message || "Failed to refresh and fetch new feeds";
       })
       .addCase(fetchUserFocus.fulfilled, (state, action) => {
         state.userFocus = action.payload;

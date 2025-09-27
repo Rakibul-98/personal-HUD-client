@@ -4,7 +4,10 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import FeedMenu from "./feedMenu/FeedMenu";
 import FeedCard from "./feedCard/FeedCard";
-import { fetchFeeds } from "../../../Redux/slices/feedSlice";
+import {
+  fetchFeeds,
+  refreshAndFetchFeeds,
+} from "../../../Redux/slices/feedSlice";
 import FeedCardSkeleton from "./feedCard/FeedCardSkeleton";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
 
@@ -111,7 +114,13 @@ export default function Feed({ userId }: FeedProps) {
   };
 
   const handleFetchNow = () =>
-    dispatch(fetchFeeds({ userFocus: { topics: userFocus }, userId }));
+    dispatch(
+      refreshAndFetchFeeds({
+        userFocus: { topics: userFocus },
+        userId,
+        feedSources: settings?.feedSources,
+      })
+    );
 
   if (loading) {
     return (
