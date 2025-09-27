@@ -79,7 +79,7 @@ export default function Registration() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition"
+            className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition cursor-pointer"
           >
             {loading ? "Registering..." : "Register"}
           </button>

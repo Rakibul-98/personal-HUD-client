@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { loginUser } from "../../Redux/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../../Redux/hooks";
 import Link from "next/link";
+import Image from "next/image";
+import google from "../../assets/google.svg";
 
 export default function Login() {
   const dispatch = useAppDispatch();
@@ -27,6 +29,10 @@ export default function Login() {
       router.push("/feed");
     }
   }, [loading, router]);
+
+  const handleGoogleSignIn = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+  };
 
   return (
     <div className="relative w-[420px] rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-6 shadow-2xl border border-gray-700">
@@ -64,11 +70,21 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition"
+            className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 py-2 rounded-lg text-white font-semibold hover:opacity-90 transition cursor-pointer"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+        <div className="h-px -mt-2 bg-gradient-to-r from-blue-400/80 via-blue-400/30 to-blue-400/80"></div>
+        <div className="flex items-center justify-center -mt-2">
+          <button
+            onClick={handleGoogleSignIn}
+            className="w-full bg-white/15 flex items-center justify-center gap-2 py-2 rounded-lg cursor-pointer hover:bg-white/30 text-white transition"
+          >
+            <Image src={google} alt="Google" className="w-5 h-5" />
+            Sign in with Google
+          </button>
+        </div>
       </div>
     </div>
   );
