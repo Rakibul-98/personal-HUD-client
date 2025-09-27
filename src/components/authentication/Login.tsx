@@ -10,7 +10,7 @@ import google from "../../assets/google.svg";
 export default function Login() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { loading, error } = useAppSelector((state) => state.auth);
+  const { loading, error, token } = useAppSelector((state) => state.auth);
 
   const [form, setForm] = useState({ email: "", password: "" });
 
@@ -24,11 +24,10 @@ export default function Login() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (token) {
       router.push("/feed");
     }
-  }, [loading, router]);
+  }, [token, router]);
 
   const handleGoogleSignIn = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;

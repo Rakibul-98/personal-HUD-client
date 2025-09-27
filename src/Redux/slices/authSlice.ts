@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../lib/axios";
 
 interface AuthState {
@@ -66,6 +66,15 @@ const authSlice = createSlice({
       localStorage.removeItem("token");
       localStorage.removeItem("user");
     },
+    setUserFromGoogle(
+      state,
+      action: PayloadAction<{ token: string; user: any }>
+    ) {
+      state.token = action.payload.token;
+      state.user = action.payload.user;
+      localStorage.setItem("token", action.payload.token);
+      localStorage.setItem("user", JSON.stringify(action.payload.user));
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -100,5 +109,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, logout } = authSlice.actions;
+export const { clearError, logout, setUserFromGoogle } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,26 +1,31 @@
 "use client";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAppDispatch } from "../../Redux/hooks";
+import { setUserFromGoogle } from "../../Redux/slices/authSlice";
 
 export default function GoogleSuccess() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-    const userStr = params.get("user");
+    const token = searchParams.get("token");
+    const userStr = searchParams.get("user");
+
     if (token && userStr) {
       const user = JSON.parse(decodeURIComponent(userStr));
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      router.push("/feed");
+
+      dispatch(setUserFromGoogle({ token, user }));
+
+      router.replace("/feed");
     } else {
-      router.push("/login");
+      router.replace("/login");
     }
-  }, [router]);
+  }, [dispatch, router, searchParams]);
 
   return (
-    <div className="text-center h-screen items-center justify-center">
+    <div className="">
       <p>Signing you in with Google...</p>
     </div>
   );
