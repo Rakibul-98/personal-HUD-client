@@ -24,7 +24,7 @@ export default function ProtectedRoute({
 
   if (!token || !user) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center min-h-screen">
         <HashLoader color={`${isDarkMode ? "white" : "black"}`} size={50} />
       </div>
     );

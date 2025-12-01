@@ -98,7 +98,7 @@ export default function LeftBar() {
         isDarkMode ? "bg-black/50 md:bg-gray-400/5" : "bg-gray-500/10"
       } backdrop-blur-sm`}
     >
-      <div className="p-5 flex-1">
+      <div className="p-3 flex-1">
         <p className="text-lg font-normal border-l-2 border-blue-400 pl-3">
           Welcome,{" "}
           <span className="text-blue-500 font-medium">
@@ -146,7 +146,7 @@ export default function LeftBar() {
         )}
       </div>
 
-      <div className="p-5 border-t border-gray-500">
+      <div className="p-3 border-t border-gray-500 flex-shrink-0">
         <Button
           className="w-full rounded-none cursor-pointer bg-red-500/80 hover:bg-red-500"
           onClick={handleLogout}

@@ -19,17 +19,21 @@ export default function Layout({ children }: AppLayoutProps) {
 
   return (
     <ProtectedRoute>
-      <Header />
+      <div className="h-16 md:h-20 flex items-center">
+        <Header />
+      </div>
       <main
         className={`grid grid-cols-1 md:grid-cols-4 
           ${isFeedPage ? "lg:grid-cols-6" : "lg:grid-cols-5"}
-          relative`}
+          relative h-[calc(100vh-9rem)] md:h-[calc(100vh-5rem)]`}
       >
         <div className="hidden lg:block lg:col-span-1">
           <LeftBar />
         </div>
 
-        <div className="col-span-1 md:col-span-4 lg:col-span-4">{children}</div>
+        <div className="col-span-1 md:col-span-4 h-full overflow-hidden">
+          {children}
+        </div>
 
         {isFeedPage && !isBookmarkPage && (
           <div className="hidden lg:block lg:col-span-1">

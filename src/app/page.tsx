@@ -1,5 +1,6 @@
 import { Bookmark, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import ParticleBackground from "../components/BackgroundAnimation/ParticleBackground";
 export default function HomePage() {
   const previewItems = [
     {
@@ -20,7 +21,8 @@ export default function HomePage() {
 
   return (
     <div className="w-[95%] mx-auto">
-      <main className="relative flex min-h-screen items-center justify-center">
+      <ParticleBackground />
+      <main className="relative flex min-h-screen items-center justify-center pt-12 pb-16">
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between w-full px-6">
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-6xl lg:text-8xl  font-extrabold ">

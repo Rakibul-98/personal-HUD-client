@@ -4,14 +4,7 @@
 
 import React, { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Newspaper,
-  Bookmark,
-  Settings,
-  LogOut,
-  Menu,
-  Home,
-} from "lucide-react";
+import { Newspaper, Bookmark, Settings, LogOut, Focus } from "lucide-react";
 import { useTheme } from "../../ThemeProvider/ThemeProvider";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
 import { logout } from "../../../Redux/slices/authSlice";
@@ -42,7 +35,7 @@ export default function BottomNavigationBar() {
     },
     {
       id: "focus",
-      icon: Home,
+      icon: Focus,
       label: "Focus",
       action: () => setShowFocus(true),
     },
@@ -129,25 +122,6 @@ export default function BottomNavigationBar() {
             <LogOut size={20} />
           </button>
         </div>
-
-        {/* Animated underline indicator */}
-        <div
-          className={`h-0.5 transition-all duration-300 ${
-            isDarkMode ? "bg-blue-500" : "bg-blue-400"
-          }`}
-          style={{
-            width: `${(1 / navItems.length) * 100}%`,
-            marginLeft: `${
-              navItems.findIndex((item) => {
-                if (item.id === "feed" && pathname === "/feed") return true;
-                if (item.id === "bookmarks" && pathname === "/bookmark")
-                  return true;
-                return false;
-              }) *
-              (100 / navItems.length)
-            }%`,
-          }}
-        />
       </div>
 
       {/* Settings Modal */}
