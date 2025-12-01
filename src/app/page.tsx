@@ -29,11 +29,10 @@ export default function HomePage() {
             <p className="mt-4 text-xl">
               Real-time feeds tailored to your focus.
             </p>
-
             <div className="mt-8">
               <Link
                 href="/feed"
-                className="bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 shadow-lg shadow-blue-500/40 hover:opacity-90 transition text-white"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-3 shadow-lg shadow-blue-500/40 hover:opacity-90 transition text-white rounded-sm"
               >
                 Get Started
               </Link>
@@ -74,6 +73,16 @@ export default function HomePage() {
           </div>
         </div>
       </main>
+      <footer className="absolute bottom-2 left-1/2 -translate-x-1/2 capitalize text-xs text-center">
+        {" "}
+        &copy; All rights Reserved | Design and Developed by{" "}
+        <Link
+          className="font-medium underline whitespace-nowrap"
+          href="https://portfolio-rakibul.netlify.app/"
+        >
+          Rakibul Hasan
+        </Link>{" "}
+      </footer>
     </div>
   );
 }

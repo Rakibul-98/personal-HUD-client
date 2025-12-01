@@ -3,6 +3,8 @@
 import { useAppSelector } from "../../Redux/hooks";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { HashLoader } from "react-spinners";
+import { useTheme } from "../ThemeProvider/ThemeProvider";
 
 export default function ProtectedRoute({
   children,
@@ -11,6 +13,8 @@ export default function ProtectedRoute({
 }) {
   const { user, token } = useAppSelector((state) => state.auth);
   const router = useRouter();
+
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     if (!token || !user) {
@@ -21,7 +25,7 @@ export default function ProtectedRoute({
   if (!token || !user) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-400">Redirecting to login...</p>
+        <HashLoader color={`${isDarkMode ? "white" : "black"}`} size={50} />
       </div>
     );
   }

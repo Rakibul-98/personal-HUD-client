@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function Header() {
   return (
     <div className="w-[95%] mx-auto">
-      <div className="pt-1">
+      <div className="py-2">
         <Link href="/" className="inline-block">
           <Image src={logo} alt="Logo" width={50} height={50} />
         </Link>
