@@ -8,6 +8,7 @@ import {
   removeBookmark,
 } from "../../../../Redux/slices/bookmarkSlice";
 import { useTheme } from "../../../ThemeProvider/ThemeProvider";
+import axios from "axios";
 
 interface FeedCardProps {
   feed: FeedType;
@@ -18,6 +19,8 @@ export default function FeedCard({ feed }: FeedCardProps) {
   const user = useAppSelector((state) => state.auth.user);
   const bookmarks = useAppSelector((state) => state.bookmark.bookmarks);
   const { isDarkMode } = useTheme();
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
   const isBookmarked = bookmarks.some((b) => b.feedItem._id === feed._id);
 
@@ -28,6 +31,23 @@ export default function FeedCard({ feed }: FeedCardProps) {
       if (bookmark) dispatch(removeBookmark(bookmark._id));
     } else {
       dispatch(addBookmark({ user: user.id, feedItem: feed._id }));
+      axios.post(
+        `${API_BASE_URL}/analytics/log`,
+        {
+          eventType: "BOOKMARK_SAVE",
+          targetId: feed._id,
+        },
+        { withCredentials: true }
+      );
+    }
+  };
+
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
     }
   };
 
@@ -40,17 +60,33 @@ export default function FeedCard({ feed }: FeedCardProps) {
       }  backdrop-blur rounded-sm p-6 transition-all duration-300`}
     >
       <div className="mb-4">
-        <Link
-          href={feed.content}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group hover:underline flex items-start justify-between"
-        >
-          <h3 className="flex-1 text-lg font-medium mb-2 pr-5 leading-relaxed">
+        {isValidUrl(feed.content) ? (
+          <Link
+            href={feed.content}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group hover:underline flex items-start justify-between"
+            onClick={() => {
+              axios.post(
+                `${API_BASE_URL}/analytics/log`,
+                {
+                  eventType: "ARTICLE_VIEW",
+                  targetId: feed._id,
+                },
+                { withCredentials: true }
+              );
+            }}
+          >
+            <h3 className="flex-1 text-lg font-medium mb-2 pr-5 leading-relaxed">
+              {feed.title}
+            </h3>
+            <ExternalLink className=" h-5 w-5 group-hover:text-blue-500 mt-1" />
+          </Link>
+        ) : (
+          <div className="text-lg font-semibold cursor-default opacity-70">
             {feed.title}
-          </h3>
-          <ExternalLink className=" h-5 w-5 group-hover:text-blue-500 mt-1" />
-        </Link>
+          </div>
+        )}
       </div>
 
       <div

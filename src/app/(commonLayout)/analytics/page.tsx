@@ -1,32 +1,29 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import axios from "axios";
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
+
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
+
 import { HashLoader } from "react-spinners";
 import { useTheme } from "../../../components/ThemeProvider/ThemeProvider";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend
@@ -35,18 +32,12 @@ ChartJS.register(
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-interface TopicData {
-  topic: string;
-  count: number;
-}
-
 interface TrendData {
   keyword: string;
   data: { date: string; count: number }[];
 }
 
 export default function AnalyticsPage() {
-  const [mostSavedTopics, setMostSavedTopics] = useState<TopicData[]>([]);
   const [keywordTrends, setKeywordTrends] = useState<TrendData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { isDarkMode } = useTheme();
@@ -54,19 +45,13 @@ export default function AnalyticsPage() {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [topicsResponse, trendsResponse] = await Promise.all([
-        axios.get(`${API_BASE_URL}/analytics/most-saved-topics`, {
-          withCredentials: true,
-        }),
-        axios.get(`${API_BASE_URL}/analytics/keyword-trends`, {
-          withCredentials: true,
-        }),
-      ]);
-
-      setMostSavedTopics(topicsResponse.data);
+      const trendsResponse = await axios.get(
+        `${API_BASE_URL}/analytics/keyword-trends`,
+        { withCredentials: true }
+      );
       setKeywordTrends(trendsResponse.data);
     } catch (error) {
-      console.log("Error fetching data.");
+      console.error("Error fetching keyword trends:", error);
     } finally {
       setIsLoading(false);
     }
@@ -76,23 +61,12 @@ export default function AnalyticsPage() {
     fetchData();
   }, [fetchData]);
 
-  const topicChartData = {
-    labels: mostSavedTopics.map((t) => t.topic),
-    datasets: [
-      {
-        label: "Times Bookmarked",
-        data: mostSavedTopics.map((t) => t.count),
-        backgroundColor: "rgba(53, 162, 235, 0.5)",
-      },
-    ],
-  };
-
   const trendLabels: string[] = Array.from(
     new Set(keywordTrends.flatMap((t) => t.data.map((d) => d.date)))
   ).sort();
 
   const trendDatasets = keywordTrends.map((trend, index) => {
-    const color = `hsl(${index * 50}, 70%, 50%)`;
+    const color = `hsl(${index * 60}, 70%, ${isDarkMode ? "60%" : "40%"})`;
 
     const dataMap = new Map<string, number>(
       trend.data.map((d) => [d.date, d.count])
@@ -102,9 +76,11 @@ export default function AnalyticsPage() {
       label: trend.keyword,
       data: trendLabels.map((date: string) => dataMap.get(date) ?? 0),
       borderColor: color,
-      backgroundColor: `${color}40`,
-      fill: false,
-      tension: 0.1,
+      backgroundColor: `${color}55`,
+      fill: true,
+      tension: 0.3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
     };
   });
 
@@ -115,12 +91,51 @@ export default function AnalyticsPage() {
 
   const chartOptions = {
     responsive: true,
+    interaction: {
+      mode: "nearest" as const,
+      intersect: false,
+    },
     plugins: {
       legend: {
+        labels: {
+          color: isDarkMode ? "#fff" : "#111",
+          boxWidth: 20,
+          padding: 15,
+        },
         position: "top" as const,
       },
+      tooltip: {
+        mode: "index" as const,
+        intersect: false,
+        backgroundColor: isDarkMode ? "#222" : "#fff",
+        titleColor: isDarkMode ? "#fff" : "#000",
+        bodyColor: isDarkMode ? "#fff" : "#000",
+      },
       title: {
-        display: false,
+        display: true,
+        text: "Keyword Trends Over Time",
+        color: isDarkMode ? "#fff" : "#111",
+        font: { size: 18 },
+      },
+    },
+    scales: {
+      x: {
+        ticks: { color: isDarkMode ? "#ccc" : "#222" },
+        grid: { color: isDarkMode ? "#333" : "#ddd" },
+        title: {
+          display: true,
+          text: "Date",
+          color: isDarkMode ? "#aaa" : "#555",
+        },
+      },
+      y: {
+        ticks: { color: isDarkMode ? "#ccc" : "#222" },
+        grid: { color: isDarkMode ? "#333" : "#ddd" },
+        title: {
+          display: true,
+          text: "Occurrences",
+          color: isDarkMode ? "#aaa" : "#555",
+        },
       },
     },
   };
@@ -128,66 +143,43 @@ export default function AnalyticsPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <HashLoader color={`${isDarkMode ? "white" : "black"}`} size={50} />
+        <HashLoader color={isDarkMode ? "white" : "black"} size={50} />
       </div>
     );
   }
 
   return (
     <div className="px-4 h-full">
-      <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {keywordTrends.length === 0 ? (
+        <p className="text-muted-foreground">
+          No keyword trend data recorded yet.
+        </p>
+      ) : (
         <Card
-          className={`${
-            isDarkMode ? "bg-white/5" : "bg-gray-500/20"
-          } backdrop-blur p-3 border-0`}
+          className={`border-0 rounded-none shadow-lg backdrop-blur-md ${
+            isDarkMode ? "bg-white/5" : "bg-gray-200/60"
+          }`}
         >
           <CardHeader>
-            <CardTitle>Most Saved Topics</CardTitle>
-            <CardDescription>
-              Top 10 topics from your bookmarked articles.
-            </CardDescription>
+            <h3
+              className={`text-xl font-semibold ${
+                isDarkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Focus Keyword Trends
+            </h3>
+            <p className={`${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+              Interactive view of your focus keywords across time.
+            </p>
           </CardHeader>
-          <CardContent>
-            {mostSavedTopics.length > 0 ? (
-              <div className="h-96">
-                <Bar
-                  data={topicChartData}
-                  options={{
-                    ...chartOptions,
-                    indexAxis: "y" as const,
-                  }}
-                />
-              </div>
-            ) : (
-              <p className="text-muted-foreground">
-                No bookmarked articles with tags found.
-              </p>
-            )}
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Focus Keyword Trends</CardTitle>
-            <CardDescription>
-              Frequency of your focus keywords over time.
-            </CardDescription>
-          </CardHeader>
           <CardContent>
-            {keywordTrends.length > 0 ? (
-              <div className="h-96">
-                <Bar data={trendChartData} options={chartOptions} />
-              </div>
-            ) : (
-              <p className="text-muted-foreground">
-                No focus keyword data logged yet.
-              </p>
-            )}
+            <div className="h-[65vh]">
+              <Line data={trendChartData} options={chartOptions} />
+            </div>
           </CardContent>
         </Card>
-      </div>
+      )}
     </div>
   );
 }

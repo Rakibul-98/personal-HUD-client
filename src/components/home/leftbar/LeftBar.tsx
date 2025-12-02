@@ -73,6 +73,11 @@ export default function LeftBar() {
       const result = await dispatch(
         removeFocusKeyword({ userId: user!.id, keyword: tagToRemove })
       ).unwrap();
+      logAnalyticsEvent({
+        eventType: "KEYWORD_FOCUS",
+        data: { keyword: tagToRemove },
+      });
+
       const updated = result;
       dispatch(setUserFocus(updated));
       await dispatch(
