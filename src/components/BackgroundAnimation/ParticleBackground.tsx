@@ -110,10 +110,9 @@ const ParticleBackground = ({
           if (distance < connectionDistance) {
             const opacity = 0.2 * (1 - distance / connectionDistance);
 
-            // Parse the connectionColor for RGB values
             let r = 100,
               g = 150,
-              b = 255; // Default values
+              b = 255;
             if (connectionColor.startsWith("rgba")) {
               const matches = connectionColor.match(/\d+/g);
               if (matches && matches.length >= 3) {
@@ -134,13 +133,11 @@ const ParticleBackground = ({
       }
     };
 
-    // Animation loop
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const particles = particlesRef.current;
 
-      // Update and draw all particles
       particles.forEach((particle) => {
         if (particle instanceof ParticleClass) {
           particle.update(canvas.width, canvas.height);
@@ -152,23 +149,18 @@ const ParticleBackground = ({
       animationFrameIdRef.current = requestAnimationFrame(animate);
     };
 
-    // Setup
     const handleResize = () => {
       resizeCanvas();
       initParticles();
     };
 
-    // Initial setup
     resizeCanvas();
     initParticles();
 
-    // Start animation
     animationFrameIdRef.current = requestAnimationFrame(animate);
 
-    // Add resize listener
     window.addEventListener("resize", handleResize);
 
-    // Cleanup
     return () => {
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
@@ -179,8 +171,8 @@ const ParticleBackground = ({
     particleCount,
     particleSpeed,
     connectionDistance,
-    particleColor, // Now includes theme dependency
-    connectionColor, // Now includes theme dependency
+    particleColor,
+    connectionColor,
   ]);
 
   return (

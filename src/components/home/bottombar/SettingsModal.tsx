@@ -35,22 +35,19 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
     if (user?.id) dispatch(fetchSettings(user.id));
   }, [user, dispatch]);
 
-  if (!settings)
+  if (!settings) {
     return (
-      <div
-        className={`fixed inset-0 z-50 flex items-end md:hidden ${
-          isDarkMode ? "bg-black/40" : "bg-black/20"
-        } backdrop-blur-sm`}
-      >
+      <div className="fixed inset-0 flex items-center justify-center z-50">
         <div
-          className={`w-full rounded-t-2xl p-6 ${
-            isDarkMode ? "bg-gray-900" : "bg-white"
+          className={`p-4 rounded-lg ${
+            isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
           }`}
         >
-          <div className="text-center text-gray-400">Loading settings...</div>
+          Loading settings...
         </div>
       </div>
     );
+  }
 
   const availableSources: (keyof UserSettings["feedSources"])[] = [
     "reddit",
@@ -144,7 +141,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Settings</h2>
+          <h2 className="text-xl font-semibold">Sources</h2>
           <button
             onClick={onClose}
             className={`p-2 rounded-lg transition-colors ${

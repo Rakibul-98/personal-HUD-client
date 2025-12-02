@@ -13,6 +13,7 @@ import {
   removeFocusKeyword,
 } from "../../../Redux/slices/feedSlice";
 import { logout } from "../../../Redux/slices/authSlice";
+import { logAnalyticsEvent } from "../../../lib/analytics";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "../../ThemeProvider/ThemeProvider";
 
@@ -46,6 +47,10 @@ export default function LeftBar() {
         const result = await dispatch(
           addFocusKeyword({ userId: user!.id, keyword: tag })
         ).unwrap();
+        logAnalyticsEvent({
+          eventType: "KEYWORD_FOCUS",
+          data: { keyword: tag },
+        });
         const updated = result;
         dispatch(setUserFocus(updated));
         await dispatch(
@@ -68,6 +73,11 @@ export default function LeftBar() {
       const result = await dispatch(
         removeFocusKeyword({ userId: user!.id, keyword: tagToRemove })
       ).unwrap();
+      logAnalyticsEvent({
+        eventType: "KEYWORD_FOCUS",
+        data: { keyword: tagToRemove },
+      });
+
       const updated = result;
       dispatch(setUserFocus(updated));
       await dispatch(

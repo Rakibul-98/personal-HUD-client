@@ -11,6 +11,8 @@ export interface Feed {
   category: string;
   popularityScore: number;
   externalId?: string;
+  summary?: string;
+  tags?: string[];
   createdAt?: string;
   rankScore?: number;
 }

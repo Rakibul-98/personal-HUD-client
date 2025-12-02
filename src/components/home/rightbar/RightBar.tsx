@@ -30,8 +30,15 @@ export default function RightBar() {
     if (user?.id) dispatch(fetchSettings(user.id));
   }, [user, dispatch]);
 
-  if (!settings)
-    return <div className="p-5 text-gray-400">Loading settings...</div>;
+  if (!settings) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className={`${isDarkMode ? "text-white" : "text-black"}`}>
+          Loading settings...
+        </p>
+      </div>
+    );
+  }
 
   const availableSources: (keyof UserSettings["feedSources"])[] = [
     "reddit",

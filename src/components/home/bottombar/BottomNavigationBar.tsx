@@ -1,12 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Newspaper, Bookmark, Settings, LogOut, Focus } from "lucide-react";
+import {
+  Newspaper,
+  Bookmark,
+  Settings,
+  LogOut,
+  Focus,
+  Settings2,
+  ChartSpline,
+} from "lucide-react";
 import { useTheme } from "../../ThemeProvider/ThemeProvider";
-import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
+import { useAppDispatch } from "../../../Redux/hooks";
 import { logout } from "../../../Redux/slices/authSlice";
 import SettingsModal from "./SettingsModal";
 import FocusModal from "./FocusModal";
@@ -16,7 +23,6 @@ export default function BottomNavigationBar() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isDarkMode } = useTheme();
-  const [activeTab, setActiveTab] = useState<string>("feed");
   const [showSettings, setShowSettings] = useState(false);
   const [showFocus, setShowFocus] = useState(false);
 
@@ -34,21 +40,32 @@ export default function BottomNavigationBar() {
       label: "Bookmarks",
     },
     {
+      id: "analytics",
+      href: "/analytics",
+      icon: ChartSpline,
+      label: "Analytics",
+    },
+    {
+      id: "settings",
+      href: "/settings",
+      icon: Settings,
+      label: "Settings",
+    },
+    {
       id: "focus",
       icon: Focus,
       label: "Focus",
       action: () => setShowFocus(true),
     },
     {
-      id: "settings",
-      icon: Settings,
-      label: "Settings",
+      id: "sources",
+      icon: Settings2,
+      label: "Sources",
       action: () => setShowSettings(true),
     },
   ];
 
   const handleNavClick = (item: any) => {
-    setActiveTab(item.id);
     if (item.href) {
       router.push(item.href);
     } else if (item.action) {
@@ -63,7 +80,6 @@ export default function BottomNavigationBar() {
 
   return (
     <>
-      {/* Bottom Navigation Bar */}
       <div
         className={`fixed bottom-0 left-0 right-0 z-40 lg:hidden ${
           isDarkMode
@@ -72,13 +88,14 @@ export default function BottomNavigationBar() {
         } backdrop-blur-md`}
       >
         <div className="flex items-center justify-between px-2 py-3">
-          {/* Navigation Tabs */}
           <div className="flex gap-1 flex-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive =
                 (item.id === "feed" && pathname === "/feed") ||
-                (item.id === "bookmarks" && pathname === "/bookmark");
+                (item.id === "bookmarks" && pathname === "/bookmark") ||
+                (item.id === "settings" && pathname === "/settings") ||
+                (item.id === "analytics" && pathname === "/analytics");
 
               return (
                 <button
@@ -87,8 +104,8 @@ export default function BottomNavigationBar() {
                   className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1 ${
                     isActive
                       ? isDarkMode
-                        ? "bg-blue-500/40 text-blue-300"
-                        : "bg-blue-400/40 text-blue-600"
+                        ? "bg-blue-500/40"
+                        : "bg-blue-400/40"
                       : isDarkMode
                       ? "text-gray-400 hover:text-gray-200 hover:bg-white/5"
                       : "text-gray-600 hover:text-gray-800 hover:bg-gray-200/50"
@@ -102,14 +119,12 @@ export default function BottomNavigationBar() {
             })}
           </div>
 
-          {/* Divider */}
           <div
             className={`h-6 w-px mx-1 ${
               isDarkMode ? "bg-gray-600/50" : "bg-gray-400/50"
             }`}
           />
 
-          {/* Logout Button */}
           <button
             onClick={handleLogout}
             className={`flex items-center justify-center p-2 rounded-lg transition-all duration-200 ${
@@ -124,13 +139,10 @@ export default function BottomNavigationBar() {
         </div>
       </div>
 
-      {/* Settings Modal */}
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
 
-      {/* Focus Modal */}
       {showFocus && <FocusModal onClose={() => setShowFocus(false)} />}
 
-      {/* Bottom Padding for Main Content */}
       <div className="h-20 md:h-0" />
     </>
   );

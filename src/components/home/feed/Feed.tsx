@@ -10,6 +10,8 @@ import {
 } from "../../../Redux/slices/feedSlice";
 import FeedCardSkeleton from "./feedCard/FeedCardSkeleton";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
+import Image from "next/image";
+import errorImg from "../../../assets/error.svg";
 
 interface FeedProps {
   userId?: string;
@@ -131,7 +133,7 @@ export default function Feed({ userId }: FeedProps) {
           onFetchNow={handleFetchNow}
         />
         <main className="space-y-3 h-[calc(100vh-200px)]">
-          {[...Array(3)].map((_, index) => (
+          {[...Array(4)].map((_, index) => (
             <FeedCardSkeleton key={index} />
           ))}
         </main>
@@ -141,8 +143,12 @@ export default function Feed({ userId }: FeedProps) {
   if (error)
     return (
       <div className="min-h-full flex items-center justify-center p-4 ">
-        <div className="rounded p-6 max-w-md w-full bg-white/10">
-          <p className="text-red-500 font-medium text-center">{error}</p>
+        <div className="w-full max-w-sm mx-auto">
+          <Image
+            src={errorImg}
+            alt="No bookmarks illustration"
+            className="object-contain"
+          />
         </div>
       </div>
     );

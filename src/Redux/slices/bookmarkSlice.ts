@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../lib/axios";
+import { logAnalyticsEvent } from "../../lib/analytics";
 
 interface BookmarkState {
   bookmarks: any[];
@@ -33,6 +34,11 @@ export const addBookmark = createAsyncThunk(
   async (data: { user: string; feedItem: string }, { rejectWithValue }) => {
     try {
       const response = await api.post("/bookmarks", data);
+      // Log analytics event
+      logAnalyticsEvent({
+        eventType: "BOOKMARK_SAVE",
+        targetId: data.feedItem,
+      });
       return response.data;
     } catch (err: any) {
       return rejectWithValue(
