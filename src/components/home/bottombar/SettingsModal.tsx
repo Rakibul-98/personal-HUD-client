@@ -35,22 +35,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
     if (user?.id) dispatch(fetchSettings(user.id));
   }, [user, dispatch]);
 
-  if (!settings)
-    return (
-      <div
-        className={`fixed inset-0 z-50 flex items-end md:hidden ${
-          isDarkMode ? "bg-black/40" : "bg-black/20"
-        } backdrop-blur-sm`}
-      >
-        <div
-          className={`w-full rounded-t-2xl p-6 ${
-            isDarkMode ? "bg-gray-900" : "bg-white"
-          }`}
-        >
-          <div className="text-center text-gray-400">Loading settings...</div>
-        </div>
-      </div>
-    );
+  if (!settings) return console.log("Error loading settings!");
 
   const availableSources: (keyof UserSettings["feedSources"])[] = [
     "reddit",

@@ -20,7 +20,7 @@ export default function Bookmark() {
     return (
       <div className="px-3">
         <main className="space-y-3">
-          {[...Array(3)].map((_, index) => (
+          {[...Array(4)].map((_, index) => (
             <FeedCardSkeleton key={index} />
           ))}
         </main>

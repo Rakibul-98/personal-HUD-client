@@ -30,8 +30,7 @@ export default function RightBar() {
     if (user?.id) dispatch(fetchSettings(user.id));
   }, [user, dispatch]);
 
-  if (!settings)
-    return <div className="p-5 text-gray-400">Loading settings...</div>;
+  if (!settings) return console.log("Error loading settings!");
 
   const availableSources: (keyof UserSettings["feedSources"])[] = [
     "reddit",

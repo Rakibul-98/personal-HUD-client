@@ -4,7 +4,14 @@
 
 import React, { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Newspaper, Bookmark, Settings, LogOut, Focus } from "lucide-react";
+import {
+  Newspaper,
+  Bookmark,
+  Settings,
+  LogOut,
+  Focus,
+  Settings2,
+} from "lucide-react";
 import { useTheme } from "../../ThemeProvider/ThemeProvider";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
 import { logout } from "../../../Redux/slices/authSlice";
@@ -41,7 +48,7 @@ export default function BottomNavigationBar() {
     },
     {
       id: "settings",
-      icon: Settings,
+      icon: Settings2,
       label: "Settings",
       action: () => setShowSettings(true),
     },

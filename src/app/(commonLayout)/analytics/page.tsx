@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -9,8 +10,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import axios from "axios";
-import { Loader2 } from "lucide-react";
-import Swal from "sweetalert2"; // ← ADDED
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -21,6 +20,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { HashLoader } from "react-spinners";
+import { useTheme } from "../../../components/ThemeProvider/ThemeProvider";
 
 ChartJS.register(
   CategoryScale,
@@ -48,6 +49,7 @@ export default function AnalyticsPage() {
   const [mostSavedTopics, setMostSavedTopics] = useState<TopicData[]>([]);
   const [keywordTrends, setKeywordTrends] = useState<TrendData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { isDarkMode } = useTheme();
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -64,12 +66,7 @@ export default function AnalyticsPage() {
       setMostSavedTopics(topicsResponse.data);
       setKeywordTrends(trendsResponse.data);
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch analytics data.",
-        confirmButtonColor: "#d33",
-      });
+      console.log("Error fetching data.");
     } finally {
       setIsLoading(false);
     }
@@ -90,12 +87,10 @@ export default function AnalyticsPage() {
     ],
   };
 
-  // 1. Extract labels
   const trendLabels: string[] = Array.from(
     new Set(keywordTrends.flatMap((t) => t.data.map((d) => d.date)))
   ).sort();
 
-  // 2. Build datasets
   const trendDatasets = keywordTrends.map((trend, index) => {
     const color = `hsl(${index * 50}, 70%, 50%)`;
 
@@ -113,7 +108,6 @@ export default function AnalyticsPage() {
     };
   });
 
-  // 3. Combine labels + datasets
   const trendChartData = {
     labels: trendLabels,
     datasets: trendDatasets,
@@ -134,17 +128,21 @@ export default function AnalyticsPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <HashLoader color={`${isDarkMode ? "white" : "black"}`} size={50} />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-10 px-4 overflow-y-auto h-full">
+    <div className="px-4 h-full">
       <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card
+          className={`${
+            isDarkMode ? "bg-white/5" : "bg-gray-500/20"
+          } backdrop-blur p-3 border-0`}
+        >
           <CardHeader>
             <CardTitle>Most Saved Topics</CardTitle>
             <CardDescription>

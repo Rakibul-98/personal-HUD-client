@@ -51,7 +51,7 @@ export default function FeedMenu({
               isDarkMode ? "bg-gray-100/10" : "bg-gray-500/20"
             } hover:bg-gray-100/20 rounded-none cursor-pointer flex gap-1 items-center py-1 px-2`}
           >
-            <Zap className="h-4 w-4 fill-blue-500 text-blue-600" />{" "}
+            <Zap className="h-5 w-5 fill-blue-500 text-blue-600 animate-pulse " />{" "}
             <p>Fetch Now</p>
           </button>
         </div>
