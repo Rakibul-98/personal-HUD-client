@@ -90,6 +90,24 @@ export default function FeedCard({ feed }: FeedCardProps) {
         </button>
       </div>
 
+      {/* added */}
+      <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        <p className="line-clamp-3">{feed.summary}</p>
+      </div>
+
+      {feed.tags && feed.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {feed.tags.map((tag, index) => (
+            <span
+              key={index}
+              className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
       <div className="h-px bg-gradient-to-r from-blue-400/30 to-transparent mt-4"></div>
     </div>
   );

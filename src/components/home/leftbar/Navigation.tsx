@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Newspaper, Bookmark } from "lucide-react";
+import { Newspaper, Bookmark, BarChart3, Settings } from "lucide-react";
 import { useTheme } from "../../ThemeProvider/ThemeProvider";
 
 export default function Navigation() {
@@ -17,6 +17,16 @@ export default function Navigation() {
       href: "/bookmark",
       icon: Bookmark,
       label: "Bookmarks",
+    },
+    {
+      href: "/analytics",
+      icon: BarChart3,
+      label: "Analytics",
+    },
+    {
+      href: "/settings",
+      icon: Settings,
+      label: "Settings",
     },
   ];
 
