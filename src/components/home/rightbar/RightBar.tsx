@@ -18,6 +18,7 @@ import {
 } from "../../../Redux/slices/settingsSlice";
 import { fetchFeeds } from "../../../Redux/slices/feedSlice";
 import { useTheme } from "../../ThemeProvider/ThemeProvider";
+import RightBarSkeleton from "./RightBarSkeleton";
 
 export default function RightBar() {
   const dispatch = useAppDispatch();
@@ -31,13 +32,7 @@ export default function RightBar() {
   }, [user, dispatch]);
 
   if (!settings) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className={`${isDarkMode ? "text-white" : "text-black"}`}>
-          Loading settings...
-        </p>
-      </div>
-    );
+    return <RightBarSkeleton />;
   }
 
   const availableSources: (keyof UserSettings["feedSources"])[] = [
