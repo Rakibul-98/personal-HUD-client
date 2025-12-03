@@ -370,7 +370,7 @@ export default function AnalyticsPage() {
             <RefreshCw
               className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
             />
-            Refresh Data
+            <span className="hidden sm:block">Refresh Data</span>
           </Button>
         </div>
 
