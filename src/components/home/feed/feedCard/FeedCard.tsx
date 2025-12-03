@@ -22,7 +22,7 @@ export default function FeedCard({ feed }: FeedCardProps) {
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-  const isBookmarked = bookmarks.some((b) => b.feedItem._id === feed._id);
+  const isBookmarked = bookmarks.some((b) => b.feedItem?._id === feed?._id);
 
   const handleBookmark = () => {
     if (!user) return alert("Login to bookmark");
