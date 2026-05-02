@@ -1,10 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../lib/axios";
-import { logAnalyticsEvent } from "../../lib/analytics";
+
+export interface Bookmark {
+  _id: string;
+  user: string;
+  feedItem: {
+    _id: string;
+    title: string;
+    content: string;
+    source: string;
+    category: string;
+    popularityScore: number;
+    summary?: string;
+    tags?: string[];
+    createdAt?: string;
+  };
+  createdAt?: string;
+}
 
 interface BookmarkState {
-  bookmarks: any[];
+  bookmarks: Bookmark[];
   loading: boolean;
   error: string | null;
 }
@@ -17,35 +33,39 @@ const initialState: BookmarkState = {
 
 export const fetchBookmarks = createAsyncThunk(
   "bookmark/fetchBookmarks",
-  async (userId: string, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/bookmarks/${userId}`);
-      return response.data;
+      // Backend now derives userId from the auth token — no userId in URL
+      const response = await api.get("/bookmarks");
+      return response.data.data; // { success, data: [...] }
     } catch (err: any) {
       return rejectWithValue(
-        err.response?.data?.message || "Something went wrong!"
+        err.response?.data?.message || "Failed to fetch bookmarks",
       );
     }
-  }
+  },
 );
 
 export const addBookmark = createAsyncThunk(
   "bookmark/addBookmark",
-  async (data: { user: string; feedItem: string }, { rejectWithValue }) => {
+  async (feedItemId: string, { rejectWithValue }) => {
     try {
-      const response = await api.post("/bookmarks", data);
-      // Log analytics event
-      logAnalyticsEvent({
-        eventType: "BOOKMARK_SAVE",
-        targetId: data.feedItem,
-      });
-      return response.data;
+      // Backend derives user from token; only need feedItem ID
+      const response = await api.post("/bookmarks", { feedItem: feedItemId });
+      // Fire analytics in background — don't block the bookmark action
+      api
+        .post("/analytics/log", {
+          eventType: "BOOKMARK_SAVE",
+          targetId: feedItemId,
+        })
+        .catch(() => {});
+      return response.data.data;
     } catch (err: any) {
       return rejectWithValue(
-        err.response?.data?.message || "Something went wrong!"
+        err.response?.data?.message || "Failed to add bookmark",
       );
     }
-  }
+  },
 );
 
 export const removeBookmark = createAsyncThunk(
@@ -53,13 +73,19 @@ export const removeBookmark = createAsyncThunk(
   async (bookmarkId: string, { rejectWithValue }) => {
     try {
       await api.delete(`/bookmarks/${bookmarkId}`);
+      api
+        .post("/analytics/log", {
+          eventType: "BOOKMARK_REMOVE",
+          targetId: bookmarkId,
+        })
+        .catch(() => {});
       return bookmarkId;
     } catch (err: any) {
       return rejectWithValue(
-        err.response?.data?.message || "Something went wrong!"
+        err.response?.data?.message || "Failed to remove bookmark",
       );
     }
-  }
+  },
 );
 
 const bookmarkSlice = createSlice({
@@ -74,18 +100,18 @@ const bookmarkSlice = createSlice({
       })
       .addCase(fetchBookmarks.fulfilled, (state, action) => {
         state.loading = false;
-        state.bookmarks = action.payload;
+        state.bookmarks = action.payload || [];
       })
       .addCase(fetchBookmarks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
       .addCase(addBookmark.fulfilled, (state, action) => {
-        state.bookmarks.unshift(action.payload);
+        if (action.payload) state.bookmarks.unshift(action.payload);
       })
       .addCase(removeBookmark.fulfilled, (state, action) => {
         state.bookmarks = state.bookmarks.filter(
-          (b) => b._id !== action.payload
+          (b) => b._id !== action.payload,
         );
       });
   },

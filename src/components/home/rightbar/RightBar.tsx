@@ -3,149 +3,70 @@
 import React, { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "../../ui/slider";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
-import {
-  fetchSettings,
-  updateSettings,
-  UserSettings,
-} from "../../../Redux/slices/settingsSlice";
+import { fetchSettings, updateSettings, UserSettings } from "../../../Redux/slices/settingsSlice";
 import { fetchFeeds } from "../../../Redux/slices/feedSlice";
 import { useTheme } from "../../ThemeProvider/ThemeProvider";
 import RightBarSkeleton from "./RightBarSkeleton";
 
+const SOURCE_LABELS: Record<string, string> = {
+  reddit: "Reddit",
+  hackerNews: "Hacker News",
+  devTo: "Dev.to",
+};
+
 export default function RightBar() {
   const dispatch = useAppDispatch();
-  const { settings } = useAppSelector((state) => state.settings);
-  const { user } = useAppSelector((state) => state.auth);
-  const { userFocus } = useAppSelector((state) => state.feed);
+  const { settings } = useAppSelector((s) => s.settings);
+  const { user } = useAppSelector((s) => s.auth);
+  const { userFocus } = useAppSelector((s) => s.feed);
   const { isDarkMode } = useTheme();
 
   useEffect(() => {
-    if (user?.id) dispatch(fetchSettings(user.id));
+    if (user) dispatch(fetchSettings());
   }, [user, dispatch]);
 
-  if (!settings) {
-    return <RightBarSkeleton />;
-  }
+  if (!settings) return <RightBarSkeleton />;
 
-  const availableSources: (keyof UserSettings["feedSources"])[] = [
-    "reddit",
-    "hackerNews",
-    "devTo",
-  ];
+  const sources = (["reddit", "hackerNews", "devTo"] as const);
+  const sortOptions = (["latest", "rank", "popularity"] as const);
 
-  const sortOptions: UserSettings["sortingPreference"][] = [
-    "latest",
-    "rank",
-    "popularity",
-  ];
-
-  const handleSourceChange = async (
-    source: keyof UserSettings["feedSources"]
-  ) => {
-    if (!settings || !user?.id) return;
-
-    const updatedSources: UserSettings["feedSources"] = {
-      ...settings.feedSources,
-      [source]: !settings.feedSources[source],
-    };
-
-    try {
-      await dispatch(
-        updateSettings({
-          userId: user.id,
-          updates: { feedSources: updatedSources },
-        })
-      ).unwrap();
-
-      await dispatch(
-        fetchFeeds({
-          userFocus: { topics: userFocus },
-          userId: user.id,
-          feedSources: updatedSources,
-          sortingPreference: settings.sortingPreference,
-        })
-      );
-    } catch (err) {
-      console.error("Error updating source:", err);
-    }
+  const handleSourceChange = async (source: keyof UserSettings["feedSources"]) => {
+    const updated = { ...settings.feedSources, [source]: !settings.feedSources[source] };
+    // Optimistic: update feed immediately
+    dispatch(fetchFeeds({ userFocus: { topics: userFocus }, feedSources: updated, sortingPreference: settings.sortingPreference }));
+    await dispatch(updateSettings({ feedSources: updated }));
   };
 
-  const handleScrollSpeedChange = async (value: number) => {
-    if (!settings || !user?.id) return;
-    try {
-      await dispatch(
-        updateSettings({ userId: user.id, updates: { scrollSpeed: value } })
-      ).unwrap();
-    } catch (err) {
-      console.error("Failed to save scroll speed:", err);
-    }
+  const handleScrollSpeed = async (value: number) => {
+    await dispatch(updateSettings({ scrollSpeed: value }));
   };
 
-  const handleSortChange = async (sort: UserSettings["sortingPreference"]) => {
-    if (!settings || !user?.id) return;
-    try {
-      await dispatch(
-        updateSettings({
-          userId: user.id,
-          updates: { sortingPreference: sort },
-        })
-      ).unwrap();
-
-      await dispatch(
-        fetchFeeds({
-          userFocus: { topics: userFocus },
-          userId: user.id,
-          feedSources: settings.feedSources,
-          sortingPreference: sort,
-        })
-      );
-    } catch (err) {
-      console.error("Failed to change sort:", err);
-    }
+  const handleSort = async (sort: UserSettings["sortingPreference"]) => {
+    dispatch(fetchFeeds({ userFocus: { topics: userFocus }, feedSources: settings.feedSources, sortingPreference: sort }));
+    await dispatch(updateSettings({ sortingPreference: sort }));
   };
+
+  const bg = isDarkMode ? "bg-white/5" : "bg-gray-100/50";
+  const sectionBg = isDarkMode ? "bg-black/50 md:bg-gray-400/5" : "bg-gray-500/10";
 
   return (
-    <div
-      className={`h-full ${
-        isDarkMode ? "bg-black/50 md:bg-gray-400/5" : "bg-gray-500/10"
-      } backdrop-blur-sm`}
-    >
+    <div className={`h-full ${sectionBg} backdrop-blur-sm`}>
       <div className="p-5 space-y-6">
         <div>
-          <p className="text-lg font-normal border-l-2 border-blue-400 pl-3 mb-3">
-            Feed Sources
-          </p>
+          <p className="text-sm font-semibold border-l-2 border-blue-400 pl-3 mb-3">Feed Sources</p>
           <div className="space-y-2">
-            {availableSources.map((source) => (
-              <div
-                key={source}
-                className={`flex items-center space-x-3 ${
-                  isDarkMode ? "bg-white/5" : "bg-gray-100/50 "
-                } p-3 backdrop-blur`}
-              >
+            {sources.map((source) => (
+              <div key={source} className={`flex items-center gap-3 ${bg} p-3`}>
                 <Checkbox
-                  id={source}
+                  id={`rb-${source}`}
                   checked={settings.feedSources[source]}
                   onCheckedChange={() => handleSourceChange(source)}
-                  className={`${
-                    isDarkMode
-                      ? "data-[state=checked]:bg-blue-400"
-                      : "border-black"
-                  }`}
+                  className={isDarkMode ? "data-[state=checked]:bg-blue-400" : "border-black"}
                 />
-                <label
-                  htmlFor={source}
-                  className=" text-sm font-light cursor-pointer"
-                >
-                  {source}
+                <label htmlFor={`rb-${source}`} className="text-sm cursor-pointer select-none flex-1">
+                  {SOURCE_LABELS[source]}
                 </label>
               </div>
             ))}
@@ -153,56 +74,25 @@ export default function RightBar() {
         </div>
 
         <div>
-          <p className="text-lg font-normal  border-l-2 border-blue-400 pl-3 mb-3">
-            Scroll Speed
-          </p>
-          <div
-            className={` ${
-              isDarkMode ? "bg-white/5" : "bg-gray-100/50 "
-            } p-4 backdrop-blur`}
-          >
-            <Slider
-              min={1}
-              max={3}
-              step={1}
-              value={[settings.scrollSpeed]}
-              onValueChange={(val) => handleScrollSpeedChange(val[0])}
-            />
-            <div className="flex justify-between text-xs mt-2">
-              <span>Slow</span>
-              <span>Medium</span>
-              <span>Fast</span>
+          <p className="text-sm font-semibold border-l-2 border-blue-400 pl-3 mb-3">Scroll Speed</p>
+          <div className={`${bg} p-4`}>
+            <Slider min={1} max={3} step={1} value={[settings.scrollSpeed]} onValueChange={(v) => handleScrollSpeed(v[0])} />
+            <div className="flex justify-between text-xs mt-2 text-gray-500">
+              <span>Slow</span><span>Medium</span><span>Fast</span>
             </div>
           </div>
         </div>
 
         <div>
-          <p className="text-lg font-normal  border-l-2 border-blue-400 pl-3 mb-3">
-            Sort By
-          </p>
-          <div className={` ${isDarkMode ? "bg-white/5" : "bg-gray-100/50 "}`}>
-            <Select
-              value={settings.sortingPreference}
-              onValueChange={(val) =>
-                handleSortChange(val as UserSettings["sortingPreference"])
-              }
-            >
-              <SelectTrigger className=" w-full outline-none rounded-none border-0">
-                <SelectValue placeholder="Select sort option" />
+          <p className="text-sm font-semibold border-l-2 border-blue-400 pl-3 mb-3">Sort By</p>
+          <div className={bg}>
+            <Select value={settings.sortingPreference} onValueChange={(v) => handleSort(v as UserSettings["sortingPreference"])}>
+              <SelectTrigger className="w-full rounded-none border-0 outline-none">
+                <SelectValue />
               </SelectTrigger>
-              <SelectContent
-                className={`rounded-none border-0 ${
-                  isDarkMode && "bg-white/5 text-white"
-                }`}
-              >
-                {sortOptions.map((option) => (
-                  <SelectItem
-                    key={option}
-                    value={option}
-                    className=" capitalize rounded-none"
-                  >
-                    {option}
-                  </SelectItem>
+              <SelectContent className={`rounded-none border-0 ${isDarkMode && "bg-gray-800 text-white"}`}>
+                {sortOptions.map((o) => (
+                  <SelectItem key={o} value={o} className="capitalize rounded-none">{o}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

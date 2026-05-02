@@ -1,23 +1,26 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
+import api from "./axios";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+// Keep in sync with backend VALID_EVENT_TYPES
+type EventType =
+  | "BOOKMARK_SAVE"
+  | "BOOKMARK_REMOVE"
+  | "FEED_CLICK"
+  | "KEYWORD_FOCUS"
+  | "KEYWORD_REMOVE"
+  | "FEED_REFRESH";
 
 interface LogEventData {
-  eventType: "BOOKMARK_SAVE" | "ARTICLE_VIEW" | "KEYWORD_FOCUS";
+  eventType: EventType;
   targetId?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }
 
-export const logAnalyticsEvent = async (eventData: LogEventData) => {
-  try {
-    // The backend handles user ID from the authenticated session
-    await axios.post(`${API_BASE_URL}/analytics/log`, eventData, {
-      withCredentials: true,
-    });
-  } catch (error) {
-    console.error("Failed to log analytics event:", error);
-    // Do not re-throw, as analytics logging should not block core functionality
-  }
+/**
+ * Fire-and-forget analytics event.
+ * Never throws — analytics should never break core UX.
+ */
+export const logAnalyticsEvent = (eventData: LogEventData): void => {
+  api.post("/analytics/log", eventData).catch(() => {
+    // Silently ignore — analytics failures are non-critical
+  });
 };

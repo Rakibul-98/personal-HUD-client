@@ -1,15 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../../Redux/hooks";
-import {
-  setUserFocus,
-  fetchFeeds,
-  fetchUserFocus,
-  addFocusKeyword,
-  removeFocusKeyword,
-} from "../../../Redux/slices/feedSlice";
+import { setUserFocus, fetchFeeds, fetchUserFocus, addFocusKeyword, removeFocusKeyword } from "../../../Redux/slices/feedSlice";
+import { logAnalyticsEvent } from "../../../lib/analytics";
 import { useTheme } from "../../ThemeProvider/ThemeProvider";
 
 interface FocusModalProps {
@@ -18,146 +14,107 @@ interface FocusModalProps {
 
 export default function FocusModal({ onClose }: FocusModalProps) {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
-  const { userFocus } = useAppSelector((state) => state.feed);
-  const { settings } = useAppSelector((state) => state.settings);
+  const { userFocus } = useAppSelector((s) => s.feed);
+  const { settings } = useAppSelector((s) => s.settings);
   const { isDarkMode } = useTheme();
-
   const [inputValue, setInputValue] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (user?.id) {
-      dispatch(fetchUserFocus(user.id));
-    }
-  }, [user, dispatch]);
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && inputValue.trim() !== "") {
-      e.preventDefault();
-      addTag(inputValue.trim());
-    }
-  };
+    dispatch(fetchUserFocus());
+  }, [dispatch]);
 
   const addTag = async (tag: string) => {
-    if (tag && !userFocus.includes(tag)) {
-      try {
-        const result = await dispatch(
-          addFocusKeyword({ userId: user!.id, keyword: tag })
-        ).unwrap();
-        const updated = result;
-        dispatch(setUserFocus(updated));
-        await dispatch(
-          fetchFeeds({
-            userFocus: { topics: updated },
-            userId: user!.id,
-            feedSources: settings?.feedSources ?? null,
-            sortingPreference: settings?.sortingPreference,
-          })
-        );
-        setInputValue("");
-      } catch (err) {
-        console.error("Failed to add focus:", err);
-      }
+    const lower = tag.toLowerCase().trim();
+    if (!lower) return;
+    if (userFocus.includes(lower)) {
+      setError(`"${lower}" is already in your focus list`);
+      return;
     }
-  };
-
-  const removeTag = async (tagToRemove: string) => {
+    setError("");
     try {
-      const result = await dispatch(
-        removeFocusKeyword({ userId: user!.id, keyword: tagToRemove })
-      ).unwrap();
-      const updated = result;
+      const updated = await dispatch(addFocusKeyword({ keyword: lower })).unwrap();
+      logAnalyticsEvent({ eventType: "KEYWORD_FOCUS", data: { keyword: lower } });
       dispatch(setUserFocus(updated));
-      await dispatch(
-        fetchFeeds({
-          userFocus: { topics: updated },
-          userId: user!.id,
-          feedSources: settings?.feedSources ?? null,
-          sortingPreference: settings?.sortingPreference,
-        })
-      );
-    } catch (err) {
-      console.error("Failed to remove focus:", err);
+      dispatch(fetchFeeds({ userFocus: { topics: updated }, feedSources: settings?.feedSources ?? null, sortingPreference: settings?.sortingPreference }));
+      setInputValue("");
+    } catch (err: any) {
+      setError(err?.message || "Failed to add topic");
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
+  const removeTag = async (tag: string) => {
+    try {
+      const updated = await dispatch(removeFocusKeyword({ keyword: tag })).unwrap();
+      logAnalyticsEvent({ eventType: "KEYWORD_REMOVE", data: { keyword: tag } });
+      dispatch(setUserFocus(updated));
+      dispatch(fetchFeeds({ userFocus: { topics: updated }, feedSources: settings?.feedSources ?? null, sortingPreference: settings?.sortingPreference }));
+    } catch {
+      // silent
+    }
   };
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-end lg:hidden ${
-        isDarkMode ? "bg-black/40" : "bg-black/20"
-      } backdrop-blur-sm`}
+      className={`fixed inset-0 z-50 flex items-end lg:hidden ${isDarkMode ? "bg-black/40" : "bg-black/20"} backdrop-blur-sm`}
       onClick={onClose}
     >
       <div
-        className={`w-full rounded-t-2xl p-6 max-h-[80vh] overflow-y-auto ${
-          isDarkMode ? "bg-gray-900" : "bg-white"
-        }`}
+        className={`w-full rounded-t-2xl p-6 max-h-[80vh] overflow-y-auto ${isDarkMode ? "bg-gray-900" : "bg-white"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">What&apos;s your focus?</h2>
-          <button
-            onClick={onClose}
-            className={`p-2 rounded-lg transition-colors ${
-              isDarkMode
-                ? "hover:bg-gray-800 text-gray-400"
-                : "hover:bg-gray-100 text-gray-600"
-            }`}
-          >
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-lg font-semibold">Your Focus Topics</h2>
+            <p className="text-xs text-gray-400 mt-0.5">{userFocus.length}/20 topics</p>
+          </div>
+          <button onClick={onClose} className={`p-2 rounded-lg ${isDarkMode ? "hover:bg-gray-800 text-gray-400" : "hover:bg-gray-100 text-gray-600"}`}>
             <X size={20} />
           </button>
         </div>
 
-        {/* Input */}
-        <div className="mb-6">
-          <input
-            className={`w-full p-3 rounded-lg focus:outline-none transition-colors ${
-              isDarkMode
-                ? "bg-gray-800/50 border-gray-700/50 focus:border-blue-500/50 focus:bg-gray-800/80"
-                : "bg-gray-100/50 border-gray-300/50 focus:border-blue-400/50 focus:bg-gray-100/80"
-            } border`}
-            type="text"
-            placeholder="eg: coding, AI/ML ..."
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-          />
+        <div className="mb-5">
+          <div className="flex gap-2">
+            <input
+              className={`flex-1 p-3 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 border ${isDarkMode ? "bg-gray-800/60 border-gray-700 text-white placeholder-gray-500" : "bg-gray-50 border-gray-200"
+                }`}
+              type="text"
+              placeholder="e.g. AI, React, startups…"
+              value={inputValue}
+              onChange={(e) => { setInputValue(e.target.value); setError(""); }}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(inputValue); } }}
+            />
+            <button
+              onClick={() => addTag(inputValue)}
+              disabled={!inputValue.trim()}
+              className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 disabled:opacity-40 transition-colors"
+            >
+              Add
+            </button>
+          </div>
+          {error && <p className="text-red-400 text-xs mt-1.5">{error}</p>}
         </div>
 
-        {/* Tags */}
-        {userFocus.length > 0 && (
+        {userFocus.length > 0 ? (
           <div>
-            <p className="text-sm font-semibold mb-3 text-gray-400">
-              Your Focus Keywords
-            </p>
+            <p className="text-xs font-semibold mb-3 text-gray-400 uppercase tracking-wider">Active Topics</p>
             <div className="flex flex-wrap gap-2">
-              {userFocus.map((tag, index) => (
+              {userFocus.map((tag, i) => (
                 <span
-                  key={index}
-                  className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
-                    isDarkMode
-                      ? "bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
-                      : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                  }`}
+                  key={i}
+                  className={`px-3 py-1.5 rounded-full text-sm flex items-center gap-2 ${isDarkMode ? "bg-blue-500/20 text-blue-300" : "bg-blue-100 text-blue-700"
+                    }`}
                 >
                   {tag}
-                  <button
-                    onClick={() => removeTag(tag)}
-                    className={`hover:text-red-500 cursor-pointer transition-colors ${
-                      isDarkMode ? "text-blue-400" : "text-blue-600"
-                    }`}
-                  >
-                    <X size={16} />
+                  <button onClick={() => removeTag(tag)} className="hover:text-red-400 transition-colors" title={`Remove ${tag}`}>
+                    <X size={14} />
                   </button>
                 </span>
               ))}
             </div>
           </div>
+        ) : (
+          <p className="text-sm text-gray-400 text-center py-4">No topics yet. Add some above to filter your feed.</p>
         )}
       </div>
     </div>

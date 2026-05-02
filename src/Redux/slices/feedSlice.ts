@@ -19,151 +19,140 @@ export interface Feed {
 
 interface FetchFeedsArgs {
   userFocus: { topics: string[] };
-  userId?: string;
   feedSources?: {
     reddit?: boolean;
     hackerNews?: boolean;
     devTo?: boolean;
   } | null;
   sortingPreference?: "latest" | "rank" | "popularity";
+  page?: number;
+  limit?: number;
 }
 
 interface FeedState {
   feeds: Feed[];
   loading: boolean;
+  refreshing: boolean;
   error: string | null;
   userFocus: string[];
+  page: number;
+  totalPages: number;
+  total: number;
 }
 
 const initialState: FeedState = {
   feeds: [],
   loading: false,
+  refreshing: false,
   error: null,
   userFocus: [],
+  page: 1,
+  totalPages: 1,
+  total: 0,
 };
 
 export const fetchFeeds = createAsyncThunk<
-  Feed[],
+  { items: Feed[]; total: number; page: number; totalPages: number },
   FetchFeedsArgs,
   { state: RootState }
 >(
   "feed/fetchFeeds",
-  async ({ userFocus, userId }, { getState, rejectWithValue }) => {
+  async (
+    { userFocus, feedSources, sortingPreference, page = 1, limit = 20 },
+    { rejectWithValue },
+  ) => {
     try {
-      const token = getState().auth.token;
-      const { data } = await api.post(
-        "/feeds/list",
-        { userFocus, userId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      return data as Feed[];
+      // Backend now uses GET /feeds with query params, POST /feeds/list for legacy
+      const { data } = await api.post("/feeds/list", {
+        userFocus,
+        feedSources,
+        sortingPreference,
+        page,
+        limit,
+      });
+      return data; // { success, items, total, page, totalPages }
     } catch (err: any) {
       return rejectWithValue(
-        err.response?.data?.error || "Failed to fetch feeds"
+        err.response?.data?.message || "Failed to fetch feeds",
       );
     }
-  }
+  },
 );
 
 export const refreshAndFetchFeeds = createAsyncThunk<
-  Feed[],
-  {
-    userFocus: { topics: string[] };
-    userId?: string;
-    feedSources?: {
-      reddit?: boolean;
-      hackerNews?: boolean;
-      devTo?: boolean;
-    } | null;
-  },
+  { items: Feed[]; total: number; page: number; totalPages: number },
+  FetchFeedsArgs,
   { state: RootState }
 >(
   "feed/refreshAndFetchFeeds",
-  async ({ userFocus, userId, feedSources }, { getState, rejectWithValue }) => {
+  async (
+    { userFocus, feedSources, sortingPreference },
+    { rejectWithValue },
+  ) => {
     try {
-      const token = getState().auth.token;
-      await api.post(
-        "/feeds/refresh",
-        { userFocus, userId, feedSources },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      const { data } = await api.post(
-        "/feeds/list",
-        { userFocus, userId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      return data as Feed[];
+      // Refresh triggers new fetch from external sources
+      await api.post("/feeds/refresh", { feedSources });
+      const { data } = await api.post("/feeds/list", {
+        userFocus,
+        feedSources,
+        sortingPreference,
+        page: 1,
+        limit: 20,
+      });
+      return data;
     } catch (err: any) {
       return rejectWithValue(
-        err.response?.data?.error || "Failed to refresh feeds"
+        err.response?.data?.message || "Failed to refresh feeds",
       );
     }
-  }
+  },
 );
 
 export const fetchUserFocus = createAsyncThunk<
   string[],
-  string,
+  void,
   { state: RootState }
->("feed/fetchUserFocus", async (userId, { getState, rejectWithValue }) => {
+>("feed/fetchUserFocus", async (_, { rejectWithValue }) => {
   try {
-    const token = getState().auth.token;
-    const { data } = await api.get(`/focus/${userId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return data.topics || [];
+    // Backend now uses GET /focus (userId from token — no URL param needed)
+    const { data } = await api.get("/focus");
+    return data.data?.topics || [];
   } catch (err: any) {
     return rejectWithValue(
-      err.response?.data?.error || "Failed to fetch user focus"
+      err.response?.data?.message || "Failed to fetch focus",
     );
   }
 });
 
 export const addFocusKeyword = createAsyncThunk<
   string[],
-  { userId: string; keyword: string },
+  { keyword: string },
   { state: RootState }
->(
-  "feed/addFocusKeyword",
-  async ({ userId, keyword }, { getState, rejectWithValue }) => {
-    try {
-      const token = getState().auth.token;
-      const { data } = await api.post(
-        "/focus/add",
-        { userId, keyword },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      return data.topics || [];
-    } catch (err: any) {
-      return rejectWithValue(
-        err.response?.data?.error || "Failed to add focus keyword"
-      );
-    }
+>("feed/addFocusKeyword", async ({ keyword }, { rejectWithValue }) => {
+  try {
+    const { data } = await api.post("/focus/add", { keyword });
+    return data.data?.topics || [];
+  } catch (err: any) {
+    return rejectWithValue(
+      err.response?.data?.message || "Failed to add topic",
+    );
   }
-);
+});
 
 export const removeFocusKeyword = createAsyncThunk<
   string[],
-  { userId: string; keyword: string },
+  { keyword: string },
   { state: RootState }
->(
-  "feed/removeFocusKeyword",
-  async ({ userId, keyword }, { getState, rejectWithValue }) => {
-    try {
-      const token = getState().auth.token;
-      const { data } = await api.post(
-        "/focus/remove",
-        { userId, keyword },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      return data.topics || [];
-    } catch (err: any) {
-      return rejectWithValue(
-        err.response?.data?.error || "Failed to remove focus keyword"
-      );
-    }
+>("feed/removeFocusKeyword", async ({ keyword }, { rejectWithValue }) => {
+  try {
+    const { data } = await api.post("/focus/remove", { keyword });
+    return data.data?.topics || [];
+  } catch (err: any) {
+    return rejectWithValue(
+      err.response?.data?.message || "Failed to remove topic",
+    );
   }
-);
+});
 
 const feedSlice = createSlice({
   name: "feed",
@@ -172,32 +161,46 @@ const feedSlice = createSlice({
     setUserFocus: (state, action: PayloadAction<string[]>) => {
       state.userFocus = action.payload;
     },
+    clearFeedError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchFeeds.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchFeeds.fulfilled, (state, action) => {
         state.loading = false;
-        state.feeds = action.payload;
+        state.feeds = action.payload.items;
+        state.total = action.payload.total;
+        state.page = action.payload.page;
+        state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchFeeds.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Failed to fetch feeds";
-      })
+        state.error = action.payload as string;
+      });
+
+    builder
       .addCase(refreshAndFetchFeeds.pending, (state) => {
-        state.loading = true;
+        state.refreshing = true;
+        state.error = null;
       })
       .addCase(refreshAndFetchFeeds.fulfilled, (state, action) => {
-        state.loading = false;
-        state.feeds = action.payload;
+        state.refreshing = false;
+        state.feeds = action.payload.items;
+        state.total = action.payload.total;
+        state.page = 1;
+        state.totalPages = action.payload.totalPages;
       })
       .addCase(refreshAndFetchFeeds.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          action.error.message || "Failed to refresh and fetch new feeds";
-      })
+        state.refreshing = false;
+        state.error = action.payload as string;
+      });
+
+    builder
       .addCase(fetchUserFocus.fulfilled, (state, action) => {
         state.userFocus = action.payload;
       })
@@ -210,5 +213,5 @@ const feedSlice = createSlice({
   },
 });
 
-export const { setUserFocus } = feedSlice.actions;
+export const { setUserFocus, clearFeedError } = feedSlice.actions;
 export default feedSlice.reducer;

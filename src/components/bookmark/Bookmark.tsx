@@ -13,7 +13,7 @@ export default function Bookmark() {
   const { bookmarks, loading } = useAppSelector((state) => state.bookmark);
 
   useEffect(() => {
-    if (user) dispatch(fetchBookmarks(user.id));
+    if (user) dispatch(fetchBookmarks());
   }, [dispatch, user]);
 
   if (loading)
